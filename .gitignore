@@ -127,3 +127,18 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# large meta-feature extraction results
+starter_kit/dev_meta_features/task2vec_results/*/*.svg
+starter_kit/dev_meta_features/task2vec_results/*/*.png
+starter_kit/dev_meta_features/task2vec_results/*/*.pkl
+starter_kit/dev_meta_features/task2vec_results/*/*.csv
+
+# temp files
+._.*
+._*
+
+# macos system files
+*.DS_Store
+*._.DS_Store
+
