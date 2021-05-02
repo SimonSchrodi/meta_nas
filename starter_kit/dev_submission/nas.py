@@ -25,8 +25,8 @@ with this class. To submit, zip this file and any helpers files together with th
 
 class NAS:
     def __init__(self):
-        self.n_epochs = 2 #64
-        self.search_duration = 120 #12600
+        self.n_epochs = 64
+        self.search_duration = 11500
         self.meta_learner = 'iterate'
         # for debugging purposes of a single default model
         self.return_default = False
@@ -64,11 +64,14 @@ class NAS:
         while time.time() < self.search_time_limit and not self.return_default:
             # choose, load and train model
             key = self._meta_learner(n)
+            print(key)
             model = self.models[key]()
             try:
                 res = self._train(model)
                 self.performance_stats[key] = res
-            except:
+                print(key, 'finished', res)
+            except Exception as e:
+                print(key, 'failed', e)
                 self.performance_stats[key] = -1
             n += 1
 
@@ -80,14 +83,8 @@ class NAS:
 
     def _meta_learner(self, n):
         if self.meta_learner == 'iterate':
-            if n == 0:
-                return 'WideResNet18'
-            elif n == 1:
-                return "ResNet18"
-            elif n == 2:
-                return "ResNet50"
-            else:
-                return "ResNet101"
+            return list(light_portfolio.keys())[n]
+
         else:
             raise NotImplementedError
     
