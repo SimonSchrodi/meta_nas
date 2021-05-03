@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torchvision
+import timm
 
 import helpers
 from models import *
@@ -25,9 +26,9 @@ with this class. To submit, zip this file and any helpers files together with th
 
 class NAS:
     def __init__(self):
-        self.n_epochs = 64
-        self.search_duration = 11500
-        self.meta_learner = 'iterate'
+        self.n_epochs = 2 #64
+        self.search_duration = 300 #11500
+        self.meta_learner = 'timm'
         # for debugging purposes of a single default model
         self.return_default = False
         self.default_model = 'ResNet18'
@@ -63,9 +64,9 @@ class NAS:
         n = 0
         while time.time() < self.search_time_limit and not self.return_default:
             # choose, load and train model
-            key = self._meta_learner(n)
-            print(key)
-            model = self.models[key]()
+            key, model = self._meta_learner(n, num_classes=metadata['n_classes'])
+            
+            print('training', key)
             try:
                 res = self._train(model)
                 self.performance_stats[key] = res
@@ -81,9 +82,16 @@ class NAS:
         model = self.models[key]()
         return helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes)
 
-    def _meta_learner(self, n):
+    def _meta_learner(self, n, num_classes):
         if self.meta_learner == 'iterate':
-            return list(light_portfolio.keys())[n]
+            key = list(light_portfolio.keys())[n]
+            return key, self.models[key]()
+
+        elif self.meta_learner == 'timm':            
+            # there are 498 models total in timm.list_models()
+            timm_list = ['ecaresnetlight', 'gluon_resnet18_v1b', 'gluon_resnet50_v1b', 'gluon_resnext50_32x4d', 'resnet34']
+            key = timm_list[n]
+            return key, timm.create_model(key, num_classes=num_classes)
 
         else:
             raise NotImplementedError
