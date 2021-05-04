@@ -26,8 +26,8 @@ with this class. To submit, zip this file and any helpers files together with th
 
 class NAS:
     def __init__(self):
-        self.n_epochs = 2 #64
-        self.search_duration = 300 #11500
+        self.n_epochs = 64
+        self.search_duration =  14400 - 600 # 4h - slack (10min)
         self.meta_learner = 'timm'
         # for debugging purposes of a single default model
         self.return_default = False
@@ -56,20 +56,29 @@ class NAS:
     """
 
     def search(self, train_x, train_y, valid_x, valid_y, metadata):
-        self.search_time_limit = time.time() + self.search_duration
+        search_time_limit = time.time() + self.search_duration
 
         self._prepare_train(train_x, train_y, valid_x, valid_y, metadata)
 
         self.performance_stats = {}
         n = 0
-        while time.time() < self.search_time_limit and not self.return_default:
+        inc = -1
+        prev_train_duration = 0
+        while time.time() < search_time_limit and not self.return_default:
             # choose, load and train model
             key, model = self._meta_learner(n, num_classes=metadata['n_classes'])
             
             print('training', key)
             try:
-                res = self._train(model)
-                self.performance_stats[key] = res
+                train_start_time = time.time()
+                res = self._train(model, search_time_limit)
+                train_duration = time.time() - train_start_time
+                self.performance_stats[key] = (res, train_duration)
+                if res > inc:
+                    search_time_limit = search_time_limit + prev_train_duration - train_duration # update time
+                    prev_train_duration = train_duration
+                    inc = res
+
                 print(key, 'finished', res)
             except Exception as e:
                 print(key, 'failed', e)
@@ -78,20 +87,21 @@ class NAS:
 
         print('performance stats:', self.performance_stats)
 
+        self.performance_stats = {k:v[0] for k,v in self.performance_stats.items()} # filter out runtime information
         key = max(self.performance_stats.items(), key=operator.itemgetter(1))[0] if self.performance_stats else self.default_model
-        model = self.models[key]()
+        model = timm.create_model(key, num_classes=self.n_classes) if self.meta_learner == 'timm' else self.models[key]()
         return helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes)
 
     def _meta_learner(self, n, num_classes):
         if self.meta_learner == 'iterate':
             key = list(light_portfolio.keys())[n]
-            return key, self.models[key]()
+            return key, self.models[key]()  
 
         elif self.meta_learner == 'timm':            
             # there are 498 models total in timm.list_models()
             timm_list = ['ecaresnetlight', 'gluon_resnet18_v1b', 'gluon_resnet50_v1b', 'gluon_resnext50_32x4d', 'resnet34']
             key = timm_list[n]
-            return key, timm.create_model(key, num_classes=num_classes)
+            return key, timm.create_model(key, num_classes=self.n_classes)
 
         else:
             raise NotImplementedError
@@ -106,7 +116,7 @@ class NAS:
         self.valid_pack = list(zip(valid_x, valid_y))
 
     
-    def _train(self, model):
+    def _train(self, model, train_time_limit):
         # reshape it to this dataset and reset model
         model = helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes)
         train_helpers.reset_weights(model)
@@ -123,7 +133,7 @@ class NAS:
             epochs=self.n_epochs,
             train_loader=train_loader,
             valid_loader=valid_loader,
-            time_limit=self.search_time_limit
+            time_limit=train_time_limit
         )
 
         return results
