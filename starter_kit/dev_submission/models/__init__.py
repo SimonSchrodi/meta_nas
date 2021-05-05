@@ -1,5 +1,6 @@
 from .baselines import *
 from .resnet import *
+from .layers import *
 
 global model_portfolio
 model_portfolio = {

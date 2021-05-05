@@ -4,7 +4,7 @@ import torch.nn as nn
 import torchvision
 import timm
 
-import helpers
+import nas_helpers
 from models import *
 import train_helpers
 
@@ -71,7 +71,7 @@ class NAS:
             print('training', key)
             try:
                 train_start_time = time.time()
-                res = self._train(model, search_time_limit)
+                res = self._train(model, search_time_limit)                
                 train_duration = time.time() - train_start_time
                 self.performance_stats[key] = (res, train_duration)
                 if res > inc:
@@ -90,7 +90,7 @@ class NAS:
         self.performance_stats = {k:v[0] for k,v in self.performance_stats.items()} # filter out runtime information
         key = max(self.performance_stats.items(), key=operator.itemgetter(1))[0] if self.performance_stats else self.default_model
         model = timm.create_model(key, num_classes=self.n_classes) if self.meta_learner == 'timm' else self.models[key]()
-        return helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes)
+        return nas_helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes)
 
     def _meta_learner(self, n, num_classes):
         if self.meta_learner == 'iterate':
@@ -100,6 +100,7 @@ class NAS:
         elif self.meta_learner == 'timm':            
             # there are 498 models total in timm.list_models()
             timm_list = ['ecaresnetlight', 'gluon_resnet18_v1b', 'gluon_resnet50_v1b', 'gluon_resnext50_32x4d', 'resnet34']
+            #timm_list = timm.list_models()
             key = timm_list[n]
             return key, timm.create_model(key, num_classes=self.n_classes)
 
@@ -118,7 +119,7 @@ class NAS:
     
     def _train(self, model, train_time_limit):
         # reshape it to this dataset and reset model
-        model = helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes)
+        model = nas_helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes)
         train_helpers.reset_weights(model)
 
         # create data loader
