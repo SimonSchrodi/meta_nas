@@ -1,9 +1,9 @@
 import torch.nn as nn
 import math
-import functools
+import inspect
 from models import *
 
-def reshape_model(model: nn.Module, channels: int, n_classes: int) -> nn.Module:
+def reshape_model(model: nn.Module, channels: int, n_classes: int, copy_type: str = 'Starter') -> nn.Module:
     """Reshapes input and output for the model. Note that currently this does not detect models
     which are not suited for the given input data size!
 
@@ -150,92 +150,49 @@ def reshape_model(model: nn.Module, channels: int, n_classes: int) -> nn.Module:
                 except ValueError:
                     obj = getattr(obj, arg)
             return obj
-
+        
         def __create_new_layer(old_member, copy_type: str, val:int, is_input: bool):
-            if copy_type == 'Copy':
-                if copy_member.__class__.__name__ == 'Conv2d':
-                    if is_input:
-                        new_layer = nn.Conv2d(
-                            channels, 
-                            copy_member.out_channels, 
-                            kernel_size=copy_member.kernel_size, 
-                            stride=copy_member.stride, 
-                            padding=copy_member.padding,
-                            padding_mode=copy_member.padding_mode,
-                            dilation=copy_member.dilation,
-                            groups=copy_member.groups,
-                            bias=True if copy_member.bias is not None else False
-                        )
-                    else: # is_ouput
-                        new_layer = nn.Conv2d(
-                            copy_member.in_channels, 
-                            n_classes, 
-                            kernel_size=copy_member.kernel_size, 
-                            stride=copy_member.stride, 
-                            padding=copy_member.padding,
-                            padding_mode=copy_member.padding_mode,
-                            dilation=copy_member.dilation,
-                            groups=copy_member.groups,
-                            bias=True if copy_member.bias is not None else False
-                        )
-                elif copy_member.__class__.__name__ == 'Conv2dSame':
-                    if is_input:
-                        new_layer = Conv2dSame(
-                            channels, 
-                            copy_member.out_channels, 
-                            kernel_size=copy_member.kernel_size, 
-                            stride=copy_member.stride, 
-                            padding=copy_member.padding,
-                            dilation=copy_member.dilation,
-                            groups=copy_member.groups,
-                            bias=True if copy_member.bias is not None else False
-                        )
-                    else: # is_ouput
-                        new_layer = Conv2dSame(
-                            copy_member.in_channels, 
-                            n_classes, 
-                            kernel_size=copy_member.kernel_size, 
-                            stride=copy_member.stride, 
-                            padding=copy_member.padding,
-                            padding_mode=copy_member.padding_mode,
-                            dilation=copy_member.dilation,
-                            groups=copy_member.groups,
-                            bias=True if copy_member.bias is not None else False
-                        )
-                elif copy_member.__class__.__name__ == 'Linear':
-                    new_layer = nn.Linear(
-                        copy_member.in_features, 
-                        n_classes, 
-                        bias=True if copy_member.bias is not None else False
-                    )
-            elif copy_type == 'Starter': # same as in starter kit
-                if copy_member.__class__.__name__ == 'Conv2d':
-                    if is_input:
-                        new_layer = nn.Conv2d(
-                            channels, 
-                            copy_member.out_channels, 
-                            kernel_size=copy_member.kernel_size, 
-                            stride=1, 
-                            padding=3
-                        )
-                    else: # is_ouput
-                        new_layer = nn.Conv2d(
-                            copy_member.in_channels,
-                            n_classes, 
-                            kernel_size=copy_member.kernel_size, 
-                            stride=1, 
-                            padding=3
-                        )
-                elif copy_member.__class__.__name__ == 'Linear':
-                    new_layer = nn.Linear(
-                        copy_member.in_features, 
-                        n_classes, 
-                        bias=True
-                    )
+            def _get_default_args(func):
+                signature = inspect.signature(func)
+                return {
+                    k: v.default
+                    for k, v in signature.parameters.items()
+                    if v.default is not inspect.Parameter.empty
+                }
+
+            func = getattr(nn, copy_member.__class__.__name__)
+            
+            # get and set default parameters
+            kwargs = _get_default_args(func)
+            if 'Conv2d' in copy_member.__class__.__name__:
+                kwargs['in_channels'] = channels if is_input else copy_member.in_channels
+                kwargs['out_channels'] = copy_member.out_channels if is_input else n_classes
+                kwargs['kernel_size'] = copy_member.kernel_size
+            elif copy_member.__class__.__name__ == 'Linear':
+                kwargs['in_features'] = channels if is_input else copy_member.in_features
+                kwargs['out_features'] = copy_member.out_features if is_input else n_classes
             else:
                 raise NotImplementedError
-
-            return new_layer
+            
+            if copy_type == 'Default':
+                pass
+            elif copy_type == 'Copy':
+                if 'Conv2d' in copy_member.__class__.__name__:
+                    for key in ['stride', 'padding', 'padding_mode', 'dilation', 'groups']:
+                        if copy_member.__class__.__name__ == 'Conv2dSame':    
+                            continue
+                        kwargs[key] = getattr(copy_member, key)
+                kwargs['bias'] = True if copy_member.bias is not None else False # same for linear
+            elif copy_type == 'Starter':
+                if 'Conv2d' in copy_member.__class__.__name__:
+                    kwargs['stride'] = 1
+                    kwargs['padding'] = 3
+                elif copy_member.__class__.__name__ == 'Linear':
+                    kwargs['bias']= True
+            else:
+                raise NotImplementedError
+            
+            return func(**kwargs)
 
         
         if not ((channels and not n_classes) or (not channels and n_classes)):
@@ -248,10 +205,10 @@ def reshape_model(model: nn.Module, channels: int, n_classes: int) -> nn.Module:
 
     # first layer
     member_str = _get_member_str(model, True) 
-    _reshape(model, member_str, channels=channels)
+    _reshape(model, member_str, channels=channels, copy_type=copy_type)
     
     # last layer
     member_str = _get_member_str(model, False) 
-    _reshape(model, member_str, n_classes=n_classes)
+    _reshape(model, member_str, n_classes=n_classes, copy_type=copy_type)
 
     return model
