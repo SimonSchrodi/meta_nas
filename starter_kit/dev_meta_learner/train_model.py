@@ -62,12 +62,13 @@ def main():
         model_specific = nas_helpers.reshape_model(model=model, channels=train_x.shape[1], n_classes=metadata['n_classes'])
         results = torch_evaluator(model_specific, data, metadata, n_epochs=64, full_train=True)
         
-        save_path = os.path.join(
+        save_dir = os.path.join(
             args.save_dir,
-            f'{dataset_path[dataset_path.rfind("/")+1:]}/{args.model}.pickle'
+            f'{dataset_path[dataset_path.rfind("/")+1:]}'
         )
-        save_path = Path(save_path)
-        save_path.makedirs_p()
+        save_dir = Path(save_dir)
+        save_dir.makedirs_p()
+        save_path = save_dir / f'{args.model}.pickle'
         with open(save_path, 'wb') as handle:
             pickle.dump(results, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
