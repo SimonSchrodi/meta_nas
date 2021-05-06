@@ -1,6 +1,8 @@
 import argparse
 import os
 import pickle
+import timm
+from path import Path
 
 from train import torch_evaluator
 
@@ -47,16 +49,16 @@ def get_dataset_paths(data):
 
 def main():
     args = parser.parse_args()
-    model = args.model
 
     assert os.path.isdir(args.save_dir)
-    # get model
-    assert args.model in model_portfolio
-    model = model_portfolio[args.model]()
     # train model and save results to disc
     for dataset_path in get_dataset_paths(args.data):
         (train_x, train_y), (valid_x, valid_y), test_x, metadata = load_datasets(dataset_path)
         data = (train_x, train_y), (valid_x, valid_y), test_x
+
+        # get model
+        assert args.model in timm.list_models()
+        model = timm.create_model(args.model, num_classes=metadata['n_classes'])
         model_specific = nas_helpers.reshape_model(model=model, channels=train_x.shape[1], n_classes=metadata['n_classes'])
         results = torch_evaluator(model_specific, data, metadata, n_epochs=64, full_train=True)
         
@@ -64,6 +66,8 @@ def main():
             args.save_dir,
             f'{dataset_path[dataset_path.rfind("/")+1:]}/{args.model}.pickle'
         )
+        save_path = Path(save_path)
+        save_path.makedirs_p()
         with open(save_path, 'wb') as handle:
             pickle.dump(results, handle, protocol=pickle.HIGHEST_PROTOCOL)
 

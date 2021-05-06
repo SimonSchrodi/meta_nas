@@ -2,12 +2,12 @@ ifndef data
 $(error data is undefined)
 endif
 
-ifndef id
-$(error id is undefined)
-endif
+#ifndef id
+#$(error id is undefined)
+#endif
 
 train:
-	python3 dev_meta_learner/train_model.py --model ResNet18 --data $(data)
+	python3 dev_meta_learner/train_model.py --model $(model) --data $(data) --save_dir /work/dlclarge2/ozturk-nascomp_track_3/results
 
 ingest:
 	#rm -f "sample_output$(id)"/*
