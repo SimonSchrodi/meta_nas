@@ -6,6 +6,7 @@ from train import torch_evaluator
 
 import sys
 sys.path.append('dev_submission')
+import nas_helpers
 from models import *
 
 sys.path.append('ingestion_program')
@@ -56,11 +57,12 @@ def main():
     for dataset_path in get_dataset_paths(args.data):
         (train_x, train_y), (valid_x, valid_y), test_x, metadata = load_datasets(dataset_path)
         data = (train_x, train_y), (valid_x, valid_y), test_x
-        results = torch_evaluator(model, data, metadata, n_epochs=64, full_train=True)
+        model_specific = nas_helpers.reshape_model(model=model, channels=train_x.shape[1], n_classes=metadata['n_classes'])
+        results = torch_evaluator(model_specific, data, metadata, n_epochs=64, full_train=True)
         
         save_path = os.path.join(
             args.save_dir,
-            f'{args.model}_{dataset_path[dataset_path.rfind("/")+1:]}.pickle'
+            f'{dataset_path[dataset_path.rfind("/")+1:]}/{args.model}.pickle'
         )
         with open(save_path, 'wb') as handle:
             pickle.dump(results, handle, protocol=pickle.HIGHEST_PROTOCOL)

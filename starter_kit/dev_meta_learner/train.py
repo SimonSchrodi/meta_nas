@@ -214,18 +214,6 @@ def full_training(model, **kwargs):
         scheduler.step()
 
         average_epoch_t = (time.time() - train_start) / (epoch + 1)
-        prog_str = "  Train Acc:  {:>8.3f}%, Val Acc: {:>8.3f}%, Mem Alloc: {}, T Remaining Est: {}".format(
-            train_acc[0],
-            valid_acc[0],
-            cache_stats(human_readable=True),
-            show_time(average_epoch_t * (epochs - epoch)))
-        prog_str += "\n  Train Loss: {:>8.3f} , Val Loss: {:>8.3f}".format(
-            train_loss,
-            valid_loss)
-        prog_str += "\n  Current best score:    Val Acc: {:>9.3f}% @ epoch {}".format(
-            best_val_acc[0],
-            best_epoch)
-        print(prog_str)
 
     best_epoch = int(np.argmax(valid_results))
     return {'train_accuracies': train_results, 
