@@ -1,4 +1,5 @@
 from .baselines import *
+from .densenet import *
 from .resnet import *
 from .layers import *
 
