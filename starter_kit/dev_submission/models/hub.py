@@ -11,7 +11,7 @@ try:
 except ImportError:
     from torch.hub import _get_torch_home as get_dir
 
-from timm import __version__
+#from timm import __version__
 try:
     from huggingface_hub import hf_hub_url
     from huggingface_hub import cached_download
