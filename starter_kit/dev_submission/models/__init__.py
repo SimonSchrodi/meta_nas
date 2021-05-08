@@ -1,6 +1,15 @@
 from .baselines import *
+from .byobnet import *
+from .cspnet import *
 from .densenet import *
+from .efficientnet import *
+from .gluon_xception import *
+from .regnet import *
 from .resnet import *
+from .resnest import *
+from .rexnet import *
+from .sknet import *
+from .vovnet import *
 from .layers import *
 
 global model_portfolio
