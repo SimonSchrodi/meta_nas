@@ -12,6 +12,7 @@ from .sknet import *
 from .vovnet import *
 from .layers import *
 
+# here just function reference to save time
 global model_portfolio
 model_portfolio = {
             "ResNet": ResNet,
@@ -33,4 +34,14 @@ light_portfolio = {
             "WideResNet18": wide_resnet18_2,
             "WideResNet50": wide_resnet50_2,
             "ResNext18_32x4d": resnext18_32x4d,
+        }
+
+global timm_portfolio
+timm_portfolio = {
+            "DenseNet161": densenet161,
+            "ResNest14d": resnest14d,
+            "MixNet_XXL": mixnet_xxl,
+            "DenseNet121": densenet121,
+            "DenseNetBlur121d": densenetblur121d,
+            "Gluon_xception65": gluon_xception65
         }

@@ -2,7 +2,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torchvision
-import timm
 
 import nas_helpers
 from models import *
@@ -32,8 +31,11 @@ class NAS:
         # for debugging purposes of a single default model
         self.return_default = False
         self.default_model = 'ResNet18'
-        # here just function reference to save time
-        self.models = model_portfolio
+        
+        if self.meta_learner == 'iterate':
+            self.models = light_portfolio
+        elif self.meta_learner == 'timm':
+            self.models = timm_portfolio
 
     """
 	search() Inputs:
@@ -89,7 +91,7 @@ class NAS:
 
         self.performance_stats = {k:v[0] for k,v in self.performance_stats.items()} # filter out runtime information
         key = max(self.performance_stats.items(), key=operator.itemgetter(1))[0] if self.performance_stats else self.default_model
-        model = timm.create_model(key, num_classes=self.n_classes) if self.meta_learner == 'timm' else self.models[key]()
+        model = self.models[key]()
         return nas_helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes)
 
     def _meta_learner(self, n, num_classes):
@@ -99,10 +101,8 @@ class NAS:
 
         elif self.meta_learner == 'timm':            
             # there are 498 models total in timm.list_models()
-            timm_list = ['ecaresnetlight', 'gluon_resnet18_v1b', 'gluon_resnet50_v1b', 'gluon_resnext50_32x4d', 'resnet34']
-            #timm_list = timm.list_models()
-            key = timm_list[n]
-            return key, timm.create_model(key, num_classes=self.n_classes)
+            key = list(timm_portfolio.keys())[n]
+            return key, self.models[key]()
 
         else:
             raise NotImplementedError
