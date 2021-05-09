@@ -68,7 +68,7 @@ class NASModel(object):
     def objective_function(self, config):
         """
         Import: config, budget
-        self.record_valid or self.record_invalid
+        call self.record_arch()
         Output: loss, train_time
         """
 
@@ -100,7 +100,7 @@ class NASModel(object):
         except:
             print('Training failed!\n\n')        
             runtime = time.time() - start_time
-            self.record_invalid(config, 1, runtime)
+            self.record_arch(config, 1, runtime)
             return 1, runtime
 
     def get_configuration_space(self):
