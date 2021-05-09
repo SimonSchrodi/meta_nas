@@ -18,3 +18,12 @@ make all data=public_data id=my_local_test
 
 ## Submission record
 [The google doc](https://docs.google.com/document/d/1rntplrNAvPcGvdIzz1-0dxHnkZvVoUhddyxZYJ-q_vc/edit) keeps track of our submissions. For development purposes of the meta learner, we can additionally track performance of individual models to improve it offline.
+
+## Running SMAC to find architecture candidates
+The smac implementation is based off of [nas_benchmarks](https://github.com/automl/nas_benchmarks/blob/master/experiment_scripts/run_smac.py)
+This needs `smac==0.10.0`, the latest version will throw an error!
+If you have any questions, ask Colin.
+```bash
+pip install smac==0.10.0
+python dev_nas/run_smac.py --dataset_path ../../public_data/devel_dataset_0
+```
