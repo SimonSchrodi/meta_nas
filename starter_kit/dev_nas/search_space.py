@@ -1,7 +1,12 @@
+import os
+import sys
+sys.path.append(os.getcwd())
+sys.path.append('dev_submission/')
 from functools import partial
-from dev_submission.models import *
-from dev_submission.models.helpers import build_model_with_cfg
-from dev_submission.nas_helpers import reshape_model
+
+from models import *
+from models.helpers import build_model_with_cfg
+from nas_helpers import reshape_model
 
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
@@ -265,7 +270,7 @@ if __name__ == "__main__":
         input_shape = train_x.shape[1:]
         for _ in range(10):
             config = cs.sample_configuration()
-            model= sample_config_return_model(config, input_shape)
+            model = sample_config_return_model(config, input_shape)
             model = reshape_model(model, channels=train_x.shape[1], n_classes=metadata['n_classes'])
             
             print(config)
