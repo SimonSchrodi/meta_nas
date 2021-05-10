@@ -19,14 +19,15 @@ from nascomp.helpers import load_datasets
 
 parser = argparse.ArgumentParser(description='Train models.')
 parser.add_argument('--model', type=str, help='Model to train', required=True)
-parser.add_argument('--data', type=str, help='Dataset name or path to datasets, if model is not trained on all datasets')
+parser.add_argument('--data', type=str, help='Dataset name or path to datasets, if model is not trained on all datasets', required=True)
 parser.add_argument('--save_dir', type=str, default=os.getcwd(), help='Dir where to save files')
 
 
 def main():
     args = parser.parse_args()
 
-    assert os.path.isdir(args.save_dir)
+    save_dir = Path(args.save_dir)
+    save_dir.makedirs_p()
     # train model and save results to disc
     for dataset_path in get_dataset_paths(args.data):
         (train_x, train_y), (valid_x, valid_y), test_x, metadata = load_datasets(dataset_path)
@@ -40,13 +41,10 @@ def main():
         results = torch_evaluator(model_specific, data, metadata, n_epochs=64, full_train=True)
         results['train_duration'] = time.time() - start_time
         
-        save_dir = os.path.join(
-            args.save_dir,
-            f'{dataset_path[dataset_path.rfind("/")+1:]}'
-        )
-        save_dir = Path(save_dir)
-        save_dir.makedirs_p()
-        save_path = save_dir / f'{args.model}.pickle'
+        _save_dir = save_dir / f'{dataset_path[dataset_path.rfind("/")+1:]}'
+        _save_dir = Path(_save_dir)
+        _save_dir.makedirs_p()
+        save_path = _save_dir / f'{args.model}.pickle'
         with open(save_path, 'wb') as handle:
             pickle.dump(results, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
