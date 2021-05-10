@@ -58,7 +58,8 @@ class NAS:
     """
 
     def search(self, train_x, train_y, valid_x, valid_y, metadata):
-        search_time_limit = time.time() + self.search_duration
+        self.search_time_limit = time.time() + self.search_duration
+        inc_time_limit = self.search_time_limit
 
         self._prepare_train(train_x, train_y, valid_x, valid_y, metadata)
 
@@ -66,18 +67,18 @@ class NAS:
         n = 0
         inc = -1
         prev_train_duration = 0
-        while time.time() < search_time_limit and not self.return_default:
+        while time.time() < inc_time_limit and not self.return_default:
             # choose, load and train model
             key, model = self._meta_learner(n, num_classes=metadata['n_classes'])
             
             print('training', key)
             try:
                 train_start_time = time.time()
-                res = self._train(model, search_time_limit)                
+                res = self._train(model, inc_time_limit)                
                 train_duration = time.time() - train_start_time
                 self.performance_stats[key] = (res, train_duration)
                 if res > inc:
-                    search_time_limit = search_time_limit + prev_train_duration - train_duration # update time
+                    inc_time_limit = inc_time_limit + prev_train_duration - train_duration # update time
                     prev_train_duration = train_duration
                     inc = res
 
@@ -134,7 +135,8 @@ class NAS:
             epochs=self.n_epochs,
             train_loader=train_loader,
             valid_loader=valid_loader,
-            time_limit=train_time_limit
+            inc_time_limit=train_time_limit,
+            search_time_limit=self.search_time_limit
         )
 
         return results

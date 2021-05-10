@@ -109,7 +109,8 @@ def full_training(model, **kwargs):
     train_loader = kwargs['train_loader']
     valid_loader = kwargs['valid_loader']
 
-    time_limit = kwargs['time_limit']
+    inc_time_limit = kwargs['inc_time_limit']
+    search_time_limit = kwargs['search_time_limit']
 
     model.to(device)
     optimizer = optim.SGD(model.parameters(), lr=lr, momentum=.9, weight_decay=3e-4)
@@ -119,16 +120,19 @@ def full_training(model, **kwargs):
     scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
 
     best_val_acc = 0
-    for e in range(epochs):
-        if time.time() > time_limit:
-            break
-        
+    train_start = time.time()
+    for epoch in range(epochs):
         train(model, device, optimizer, criterion, train_loader)
         valid_acc = evaluate(model, device, criterion, valid_loader)
-        print('finished epoch', e)
+        print('finished epoch', epoch)
 
         if valid_acc > best_val_acc:
             best_val_acc = valid_acc
         scheduler.step()
+
+        average_epoch_t = (time.time() - train_start) / (epoch + 1)
+        estimated_train_time = average_epoch_t * epochs
+        if time.time() > inc_time_limit or train_start + estimated_train_time > search_time_limit:
+            break
 
     return best_val_acc
