@@ -67,6 +67,10 @@ class NAS:
         n = 0
         inc = -1
         prev_train_duration = 0
+        
+        print('time', time.time())
+        print('inc time limit', inc_time_limit)
+
         while time.time() < inc_time_limit and not self.return_default:
             # choose, load and train model
             key, model = self._meta_learner(n, num_classes=metadata['n_classes'])
@@ -75,12 +79,14 @@ class NAS:
             try:
                 res, train_duration = self._train(model, inc_time_limit)
                 self.performance_stats[key] = (res, train_duration)
+                print(key, 'finished', res, 'duration', train_duration)
                 if res > inc and time.time() + train_duration < self.search_time_limit:
                     inc_time_limit = inc_time_limit + prev_train_duration - train_duration # update time
                     prev_train_duration = train_duration
                     inc = res
+                    print('updating inc', inc, 'time limit', inc_time_limit, 'prev duration', prev_train_duration)
+                print('done with', n)
 
-                print(key, 'finished', res)
             except Exception as e:
                 print(key, 'failed', e)
                 self.performance_stats[key] = -1
@@ -110,7 +116,7 @@ class NAS:
     
     def _prepare_train(self, train_x, train_y, valid_x, valid_y, metadata):
         # load + package data
-        print(train_x.shape, valid_x.shape, metadata['n_classes'], metadata['batch_size'], metadata['lr'])
+        print(train_x.shape, metadata['n_classes'])
 
         self.channels = train_x.shape[1]
         self.n_classes = metadata['n_classes']
