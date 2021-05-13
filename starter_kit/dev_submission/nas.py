@@ -94,7 +94,7 @@ class NAS:
 
         print('performance stats:', self.performance_stats)
 
-        self.performance_stats = {k:v[0] for k,v in self.performance_stats.items() if time.time() + v[1] < self.search_time_limit} # filter out runtime information
+        self.performance_stats = {k:v[0] for k,v in self.performance_stats.items() if time.time() + v[1] < self.search_time_limit + 500} # filter out runtime information
         print('performance stats filtered:', self.performance_stats)
         key = max(self.performance_stats.items(), key=operator.itemgetter(1))[0] if self.performance_stats else self.default_model
         print('Use model:', key)
