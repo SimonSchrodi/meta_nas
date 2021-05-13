@@ -30,7 +30,7 @@ class NAS:
         self.meta_learner = 'timm'
         # for debugging purposes of a single default model
         self.return_default = False
-        self.default_model = 'ResNet18'
+        self.default_model = 'ResNest14d'
         
         if self.meta_learner == 'iterate':
             self.models = light_portfolio
@@ -75,7 +75,7 @@ class NAS:
             try:
                 res, train_duration = self._train(model, inc_time_limit)
                 self.performance_stats[key] = (res, train_duration)
-                if res > inc and time.time() + train_duration <= self.search_time_limit:
+                if res > inc and time.time() + train_duration < self.search_time_limit:
                     inc_time_limit = inc_time_limit + prev_train_duration - train_duration # update time
                     prev_train_duration = train_duration
                     inc = res
@@ -88,7 +88,7 @@ class NAS:
 
         print('performance stats:', self.performance_stats)
 
-        self.performance_stats = {k:v[0] for k,v in self.performance_stats.items()} # filter out runtime information
+        self.performance_stats = {k:v[0] for k,v in self.performance_stats.items() if time.time() + v[1] < self.search_time_limit} # filter out runtime information
         key = max(self.performance_stats.items(), key=operator.itemgetter(1))[0] if self.performance_stats else self.default_model
         model = self.models[key]()
         return nas_helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes)
