@@ -110,6 +110,8 @@ class NAS:
     
     def _prepare_train(self, train_x, train_y, valid_x, valid_y, metadata):
         # load + package data
+        print(train_x.shape, valid_x.shape, metadata['n_classes'], metadata['batch_size'], metadata['lr'])
+
         self.channels = train_x.shape[1]
         self.n_classes = metadata['n_classes']
         self.batch_size = metadata['batch_size']
