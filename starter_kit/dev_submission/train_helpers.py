@@ -132,7 +132,7 @@ def full_training(model, **kwargs):
 
         average_epoch_t = (time.time() - train_start) / (epoch + 1)
         estimated_train_time = average_epoch_t * epochs
-        if time.time() > inc_time_limit or train_start + estimated_train_time > search_time_limit:
-            break
+        if time.time() > inc_time_limit or (train_start + estimated_train_time > search_time_limit and epoch >= 2):
+            return best_val_acc, estimated_train_time
 
-    return best_val_acc
+    return best_val_acc, time.time() - train_start

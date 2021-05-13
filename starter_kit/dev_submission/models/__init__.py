@@ -37,11 +37,22 @@ light_portfolio = {
         }
 
 global timm_portfolio
+#sub1
+#timm_portfolio = {
+#            "DenseNet161": densenet161,
+#            "ResNest14d": resnest14d,
+#            "MixNet_XXL": mixnet_xxl,
+#            "DenseNet121": densenet121,
+#            "DenseNetBlur121d": densenetblur121d,
+#            "Gluon_xception65": gluon_xception65
+#        }
+
 timm_portfolio = {
-            "DenseNet161": densenet161,
             "ResNest14d": resnest14d,
-            "MixNet_XXL": mixnet_xxl,
-            "DenseNet121": densenet121,
+            "DenseNet161": densenet161,
+            "VovNet39a": vovnet39a,
+            "SeResNext26t_32x4d": seresnext26t_32x4d,
+            "Gluon_xception65": gluon_xception65,
+            "SeResNext26tn_32x4d": seresnext26tn_32x4d,
             "DenseNetBlur121d": densenetblur121d,
-            "Gluon_xception65": gluon_xception65
         }

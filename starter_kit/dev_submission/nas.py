@@ -73,11 +73,9 @@ class NAS:
             
             print('training', key)
             try:
-                train_start_time = time.time()
-                res = self._train(model, inc_time_limit)                
-                train_duration = time.time() - train_start_time
+                res, train_duration = self._train(model, inc_time_limit)
                 self.performance_stats[key] = (res, train_duration)
-                if res > inc:
+                if res > inc and time.time() + train_duration <= self.search_time_limit:
                     inc_time_limit = inc_time_limit + prev_train_duration - train_duration # update time
                     prev_train_duration = train_duration
                     inc = res
@@ -97,12 +95,12 @@ class NAS:
 
     def _meta_learner(self, n, num_classes):
         if self.meta_learner == 'iterate':
-            key = list(light_portfolio.keys())[n]
+            key = list(light_portfolio.keys())[n % len(list(light_portfolio.keys()))]
             return key, self.models[key]()  
 
         elif self.meta_learner == 'timm':            
             # there are 498 models total in timm.list_models()
-            key = list(timm_portfolio.keys())[n]
+            key = list(timm_portfolio.keys())[n % len(list(timm_portfolio.keys()))]
             return key, self.models[key]()
 
         else:
@@ -128,7 +126,7 @@ class NAS:
         valid_loader = torch.utils.data.DataLoader(self.valid_pack, int(self.batch_size))
 
         # train
-        results = train_helpers.full_training(
+        results, train_time = train_helpers.full_training(
             model=model,
             device=torch.device('cuda') if torch.cuda.is_available() else torch.device("cpu"),
             lr=self.lr,
@@ -139,4 +137,4 @@ class NAS:
             search_time_limit=self.search_time_limit
         )
 
-        return results
+        return results, train_time
