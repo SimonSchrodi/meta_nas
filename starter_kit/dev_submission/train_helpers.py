@@ -111,6 +111,7 @@ def full_training(model, **kwargs):
 
     inc_time_limit = kwargs['inc_time_limit']
     search_time_limit = kwargs['search_time_limit']
+    key = kwargs['key']
 
     model.to(device)
     optimizer = optim.SGD(model.parameters(), lr=lr, momentum=.9, weight_decay=3e-4)
@@ -133,11 +134,20 @@ def full_training(model, **kwargs):
 
         average_epoch_t = (time.time() - train_start) / (epoch + 1)
         estimated_train_time = average_epoch_t * epochs
+
         if time.time() > inc_time_limit:
             print('inc time exceeded')
             return best_val_acc, estimated_train_time
         elif (train_start + estimated_train_time > search_time_limit and epoch >= 2):
             print('estimated train time exceeded')
             return best_val_acc, estimated_train_time
+        
+        elif key in ["DenseNet161", "DenseNet121", "TV_DenseNet121", "DenseNet169"]:
+            if epoch >= 12 and best_val_acc < 70:
+                print('Poor performance, epoch', epoch)
+                return best_val_acc, estimated_train_time
+            elif epoch >= 30:
+                print('Early stopping, epoch', epoch)
+                return best_val_acc, estimated_train_time
 
     return best_val_acc, time.time() - train_start

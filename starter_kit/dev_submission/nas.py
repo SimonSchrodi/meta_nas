@@ -77,7 +77,7 @@ class NAS:
             
             print('training', key)
             try:
-                res, train_duration = self._train(model, inc_time_limit)
+                res, train_duration = self._train(model, inc_time_limit, key)
                 self.performance_stats[key] = (res, train_duration)
                 print(key, 'finished', res, 'duration', train_duration)
                 if res > inc and time.time() + train_duration < self.search_time_limit:
@@ -126,7 +126,7 @@ class NAS:
         self.valid_pack = list(zip(valid_x, valid_y))
 
     
-    def _train(self, model, train_time_limit):
+    def _train(self, model, train_time_limit, key):
         # reshape it to this dataset and reset model
         model = nas_helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes)
         train_helpers.reset_weights(model)
@@ -144,7 +144,8 @@ class NAS:
             train_loader=train_loader,
             valid_loader=valid_loader,
             inc_time_limit=train_time_limit,
-            search_time_limit=self.search_time_limit
+            search_time_limit=self.search_time_limit,
+            key=key
         )
 
         return results, train_time
