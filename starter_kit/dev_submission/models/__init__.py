@@ -10,6 +10,8 @@ from .resnest import *
 from .rexnet import *
 from .sknet import *
 from .vovnet import *
+from .xception import *
+from .xception_aligned import *
 from .layers import *
 
 # here just function reference to save time
@@ -37,7 +39,7 @@ light_portfolio = {
         }
 
 global timm_portfolio
-#sub1
+# sub1
 #timm_portfolio = {
 #            "DenseNet161": densenet161,
 #            "ResNest14d": resnest14d,
@@ -58,16 +60,30 @@ global timm_portfolio
 #            "DenseNetBlur121d": densenetblur121d,
 #        }
 
+# sub3
+#timm_portfolio = {
+#            "DenseNet161": densenet161,
+#            "DenseNet121": densenet121,
+#            "TV_DenseNet121": tv_densenet121, 
+#            "DenseNet169": densenet169,
+#            "ResNest14d": resnest14d,    
+#            "DenseNetBlur121d": densenetblur121d,
+#            "SeResNext26t_32x4d": seresnext26t_32x4d,
+#            "SeResNext26tn_32x4d": seresnext26tn_32x4d, 
+#            "SeResNet50t": seresnet50t, 
+#            "DenseNet121d": densenet121d, 
+#            "SeResNext26d_32x4d": seresnext26d_32x4d,
+#        }
+
+# sub4
 timm_portfolio = {
             "DenseNet161": densenet161,
-            "DenseNet121": densenet121,
-            "TV_DenseNet121": tv_densenet121, 
-            "DenseNet169": densenet169,
-            "ResNest14d": resnest14d,    
-            "DenseNetBlur121d": densenetblur121d,
-            "SeResNext26t_32x4d": seresnext26t_32x4d,
-            "SeResNext26tn_32x4d": seresnext26tn_32x4d, 
-            "SeResNet50t": seresnet50t, 
-            "DenseNet121d": densenet121d, 
+            "ResNest14d": resnest14d,
+            "Ese_VovNet39b": ese_vovnet39b, 
+            "SeResNet50t": seresnet50t,
             "SeResNext26d_32x4d": seresnext26d_32x4d,
+            "xception71": xception71,
+            "ResNet18d": resnet18d,
+            "Regnety_320": regnety_320,
+            "Gernet_m": gernet_m
         }

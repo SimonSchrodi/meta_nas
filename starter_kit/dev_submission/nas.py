@@ -78,9 +78,10 @@ class NAS:
             print('training', key)
             try:
                 res, train_duration = self._train(model, inc_time_limit, key)
-                if key not in self.performance_stats.keys() or res > self.performance_stats[key][0]: # do not overwrite results when performance is worse
-                    self.performance_stats[key] = (res, train_duration)
                 print(key, 'finished', res, 'duration', train_duration)
+                if key not in self.performance_stats.keys() or res > self.performance_stats[key][0]: # do not overwrite results when performance is worse
+                    print('Write to performance stats', key, 'finished', res, 'duration', train_duration)
+                    self.performance_stats[key] = (res, train_duration)
                 if res > inc and time.time() + train_duration < self.search_time_limit + 500:
                     inc_time_limit = inc_time_limit + prev_train_duration - train_duration # update time
                     prev_train_duration = train_duration
