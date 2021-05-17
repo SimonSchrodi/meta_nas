@@ -134,20 +134,22 @@ def full_training(model, **kwargs):
 
         average_epoch_t = (time.time() - train_start) / (epoch + 1)
         estimated_train_time = average_epoch_t * epochs
+        estimated_early_stop_time = average_epoch_t * 40
 
         if time.time() > inc_time_limit:
-            print('inc time exceeded')
+            print('inc time exceeded', inc_time_limit)
             return best_val_acc, estimated_train_time
-        elif (train_start + estimated_train_time > search_time_limit and epoch >= 2):
-            print('estimated train time exceeded')
+
+        elif (train_start + estimated_early_stop_time > search_time_limit and epoch >= 2):
+            print('estimated train time exceeded', estimated_train_time)
             return best_val_acc, estimated_train_time
-        
-        elif key in ["DenseNet161", "DenseNet121", "TV_DenseNet121", "DenseNet169"]:
-            if epoch >= 12 and best_val_acc < 70:
-                print('Poor performance, epoch', epoch)
-                return best_val_acc, estimated_train_time
-            elif epoch >= 30:
-                print('Early stopping, epoch', epoch)
-                return best_val_acc, estimated_train_time
+
+        elif key in ["DenseNet161", "DenseNet121", "TV_DenseNet121", "DenseNet169"] and epoch >= 12 and best_val_acc < 65:
+            print('Poor performance, epoch', epoch)
+            return best_val_acc, estimated_train_time
+
+        elif epoch >= 40:
+            print('Early stopping, epoch', epoch)
+            return best_val_acc, estimated_train_time
 
     return best_val_acc, time.time() - train_start

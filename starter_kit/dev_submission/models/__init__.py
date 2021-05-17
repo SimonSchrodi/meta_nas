@@ -78,12 +78,31 @@ global timm_portfolio
 # sub4
 timm_portfolio = {
             "DenseNet161": densenet161,
+            "DenseNet121": densenet121,
+            "DenseNet169": densenet169,
             "ResNest14d": resnest14d,
+            "VovNet39a": vovnet39a,
             "Ese_VovNet39b": ese_vovnet39b, 
             "SeResNet50t": seresnet50t,
             "SeResNext26d_32x4d": seresnext26d_32x4d,
             "xception71": xception71,
             "ResNet18d": resnet18d,
             "Regnety_320": regnety_320,
-            "Gernet_m": gernet_m
+            "Gernet_m": gernet_m,
+            "Gluon_xception65": gluon_xception65,
+            "DenseNetBlur121d": densenetblur121d,
+            "SeResNext26tn_32x4d": seresnext26tn_32x4d
         }
+
+# sub4 unused
+#timm_portfolio = {
+#            "DenseNet161": densenet161,
+#            "ResNest14d": resnest14d,
+#            "Ese_VovNet39b": ese_vovnet39b, 
+#            "SeResNet50t": seresnet50t,
+#            "SeResNext26d_32x4d": seresnext26d_32x4d,
+#            "xception71": xception71,
+#            "ResNet18d": resnet18d,
+#            "Regnety_320": regnety_320,
+#            "Gernet_m": gernet_m
+#        }
