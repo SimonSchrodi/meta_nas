@@ -8,6 +8,7 @@ import time
 from train import torch_evaluator
 
 from utils import get_dataset_paths
+from tailored_models import *
 
 import sys
 sys.path.append('dev_submission')
@@ -35,8 +36,13 @@ def main():
         data = (train_x, train_y), (valid_x, valid_y), test_x
 
         # get model
-        assert args.model in timm.list_models()
-        model = timm.create_model(args.model, num_classes=metadata['n_classes'])
+        try:
+            model = globals()[args.model]()
+        except:
+            try:
+                model = timm.create_model(args.model, num_classes=metadata['n_classes'])
+            except:
+                raise Exception('Unknown model')
         model_specific = nas_helpers.reshape_model(model=model, channels=train_x.shape[1], n_classes=metadata['n_classes'], copy_type=args.reshaping)
         try:
             start_time = time.time()
@@ -51,6 +57,7 @@ def main():
                 pickle.dump(results, handle, protocol=pickle.HIGHEST_PROTOCOL)
         except:
             print(f'{args.model} cannot be trained on {dataset_path}')
+
 
 if __name__ == "__main__":
     main()
