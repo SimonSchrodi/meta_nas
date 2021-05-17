@@ -32,7 +32,7 @@ class NASModel(object):
 
     def __init__(self, dataset_path, max_epochs, multi_fidelity=False):
 
-        self.dataset_path = '../../public_data/devel_dataset_0'
+        self.dataset_path = dataset_path
         self.max_epochs = max_epochs
         self.multi_fidelity = multi_fidelity
         self.X = []
@@ -120,18 +120,17 @@ class NASModel(object):
         cs.add_hyperparameter(network_family)
 
         ### RESNET ###
-
-        block = CSH.CategoricalHyperparameter('block', ['basic', 'bottleneck'])
-        cardinality = CSH.UniformIntegerHyperparameter("cardinality", lower=1, upper=32, default_value = 1)
-        base_width = CSH.UniformIntegerHyperparameter("base_width", lower=8, upper=256, log=True, default_value = 64)
-        stem_width = CSH.UniformIntegerHyperparameter("stem_width", lower=8, upper=64, log=True, default_value = 64)
-        resnet_stem_type = CSH.CategoricalHyperparameter("resnet_stem_type", ['', 'deep', 'deep_tiered'], default_value = '')
-        avg_down = CSH.CategoricalHyperparameter("avg_down", [True, False], default_value = False)
-        attn_layer = CSH.CategoricalHyperparameter("attn_layer", ['', 'se', 'eca', partial(layers.get_attn('se'), 
-                                                                                           reduction_ratio=0.25)], default_value = '')
-        cs.add_hyperparameters([block, cardinality, base_width, stem_width, resnet_stem_type, avg_down, attn_layer])
-
         if 'resnet' in FAMILIES:
+            block = CSH.CategoricalHyperparameter('block', ['basic', 'bottleneck'])
+            cardinality = CSH.UniformIntegerHyperparameter("cardinality", lower=1, upper=32, default_value = 1)
+            base_width = CSH.UniformIntegerHyperparameter("base_width", lower=8, upper=256, log=True, default_value = 64)
+            stem_width = CSH.UniformIntegerHyperparameter("stem_width", lower=8, upper=64, log=True, default_value = 64)
+            resnet_stem_type = CSH.CategoricalHyperparameter("resnet_stem_type", ['', 'deep', 'deep_tiered'], default_value = '')
+            avg_down = CSH.CategoricalHyperparameter("avg_down", [True, False], default_value = False)
+            attn_layer = CSH.CategoricalHyperparameter("attn_layer", ['', 'se', 'eca', partial(layers.get_attn('se'), 
+                                                                                            reduction_ratio=0.25)], default_value = '')
+            cs.add_hyperparameters([block, cardinality, base_width, stem_width, resnet_stem_type, avg_down, attn_layer])
+
             block_cond = CS.EqualsCondition(block, network_family, 'resnet')
             stem_width_cond = CS.EqualsCondition(stem_width, network_family, 'resnet')
             stem_type_cond = CS.EqualsCondition(resnet_stem_type, network_family, 'resnet')
@@ -149,21 +148,20 @@ class NASModel(object):
             cs.add_condition(layers_per_block_cond)
 
         ### DENSENET ###
-
-        growth_rate = CSH.UniformIntegerHyperparameter("growth_rate", lower=GROWTH_RATE['lower'], 
-                                                       upper=GROWTH_RATE['upper'], default_value=GROWTH_RATE['default_value'])
-        densenet_layers_per_block = CSH.UniformIntegerHyperparameter("densenet_layers_per_block", 
-                                                                     lower=DENSENET_LAYERS_PER_BLOCK['lower'], 
-                                                                     upper=DENSENET_LAYERS_PER_BLOCK['upper'], 
-                                                                     log=True, 
-                                                                     default_value=DENSENET_LAYERS_PER_BLOCK['default_value'])
-        bn_size = CSH.UniformIntegerHyperparameter("bn_size", lower=BN_SIZE['lower'], 
-                                                   upper=BN_SIZE['upper'], 
-                                                   default_value=BN_SIZE['default_value'])
-        densenet_stem_type = CSH.CategoricalHyperparameter("densenet_stem_type", ['', 'deep'], default_value = '')
-        cs.add_hyperparameters([growth_rate, bn_size, densenet_stem_type, densenet_layers_per_block])
-
         if 'densenet' in FAMILIES:
+            growth_rate = CSH.UniformIntegerHyperparameter("growth_rate", lower=GROWTH_RATE['lower'], 
+                                                        upper=GROWTH_RATE['upper'], default_value=GROWTH_RATE['default_value'])
+            densenet_layers_per_block = CSH.UniformIntegerHyperparameter("densenet_layers_per_block", 
+                                                                        lower=DENSENET_LAYERS_PER_BLOCK['lower'], 
+                                                                        upper=DENSENET_LAYERS_PER_BLOCK['upper'], 
+                                                                        log=True, 
+                                                                        default_value=DENSENET_LAYERS_PER_BLOCK['default_value'])
+            bn_size = CSH.UniformIntegerHyperparameter("bn_size", lower=BN_SIZE['lower'], 
+                                                    upper=BN_SIZE['upper'], 
+                                                    default_value=BN_SIZE['default_value'])
+            densenet_stem_type = CSH.CategoricalHyperparameter("densenet_stem_type", ['', 'deep'], default_value = '')
+            cs.add_hyperparameters([growth_rate, bn_size, densenet_stem_type, densenet_layers_per_block])
+
             growth_rate_cond = CS.EqualsCondition(growth_rate, network_family, 'densenet')
             densenet_layers_per_block_cond = CS.EqualsCondition(densenet_layers_per_block, network_family, 'densenet')
             bn_size_cond = CS.EqualsCondition(bn_size, network_family, 'densenet')
@@ -171,39 +169,35 @@ class NASModel(object):
             cs.add_conditions([growth_rate_cond, densenet_layers_per_block_cond, bn_size_cond, stem_type_cond])
 
         ### EFFICIENTNET ###
-
-        channel_multiplier = CSH.UniformFloatHyperparameter('channel_multiplier', lower=0.1, upper=2.0, default_value = 1.0)
-        depth_multiplier = CSH.UniformFloatHyperparameter('depth_multiplier', lower=0.1, upper=2.0, default_value = 1.0)
-        cs.add_hyperparameters([channel_multiplier, depth_multiplier])
-
         if 'efficientnet' in FAMILIES:
+            channel_multiplier = CSH.UniformFloatHyperparameter('channel_multiplier', lower=0.1, upper=2.0, default_value = 1.0)
+            depth_multiplier = CSH.UniformFloatHyperparameter('depth_multiplier', lower=0.1, upper=2.0, default_value = 1.0)
+            cs.add_hyperparameters([channel_multiplier, depth_multiplier])
+
             channel_multiplier_cond = CS.EqualsCondition(channel_multiplier, network_family, 'efficientnet')
             depth_multiplier_cond = CS.EqualsCondition(depth_multiplier, network_family, 'efficientnet')
             cs.add_conditions([channel_multiplier_cond, depth_multiplier_cond])
 
         # VOVNET
-
-        vovnet_model_cfg = CSH.CategoricalHyperparameter("vovnet_model_cfg", ['vovnet39a', 'ese_vovnet39b', 'eca_vovnet39b', 'ese_vovnet19b_slim'], default_value = 'vovnet39a')
-        
         if 'vovnet' in FAMILIES:
+            vovnet_model_cfg = CSH.CategoricalHyperparameter("vovnet_model_cfg", ['vovnet39a', 'ese_vovnet39b', 'eca_vovnet39b', 'ese_vovnet19b_slim'], default_value = 'vovnet39a')
+    
             vovnet_model_cfg_cond = CS.EqualsCondition(vovnet_model_cfg, network_family, 'vovnet')
             cs.add_hyperparameter(vovnet_model_cfg)
             cs.add_condition(vovnet_model_cfg_cond)
 
         # CSPNET
-
-        cspnet_model_cfg = CSH.CategoricalHyperparameter("cspnet_model_cfg", ['cspresnet50', 'cspresnet50d', 'cspresnet50w'], default_value = 'cspresnet50')
-        
         if 'cspnet' in FAMILIES:
+            cspnet_model_cfg = CSH.CategoricalHyperparameter("cspnet_model_cfg", ['cspresnet50', 'cspresnet50d', 'cspresnet50w'], default_value = 'cspresnet50')
+        
             cspnet_model_cfg_cond = CS.EqualsCondition(cspnet_model_cfg, network_family, 'cspnet')
             cs.add_hyperparameter(cspnet_model_cfg)
             cs.add_condition(cspnet_model_cfg_cond)
 
         # RESNEST
-
-        resnest_layers_per_block = CSH.UniformIntegerHyperparameter("resnest_layers_per_block", lower=1, upper=6)
-
         if 'resnest' in FAMILIES:
+            resnest_layers_per_block = CSH.UniformIntegerHyperparameter("resnest_layers_per_block", lower=1, upper=6)
+
             resnest_layers_per_block_cond = CS.EqualsCondition(resnest_layers_per_block, network_family, 'resnest')
             cs.add_hyperparameter(resnest_layers_per_block)
             cs.add_condition(resnest_layers_per_block_cond)

@@ -38,6 +38,7 @@ cs = b.get_configuration_space()
 
 scenario = Scenario({"run_obj": "quality",
                      "runcount-limit": args.n_iters,
+                     "wallclock-limit": 86300,
                      "cs": cs,
                      "deterministic": "false",
                      "initial_incumbent": "RANDOM",
@@ -50,7 +51,7 @@ def objective_function(config, **kwargs):
 
 
 tae = ExecuteTAFuncDict(objective_function, use_pynisher=False)
-smac = SMAC(scenario=scenario, tae_runner=tae)
+smac = SMAC(scenario=scenario, tae_runner=tae, run_id=args.run_id)
 
 # probability for random configurations
 
