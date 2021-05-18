@@ -129,12 +129,12 @@ class NAS:
 
         # select portfolio
         if self.channels == 1:
-            self.models = timm_portfolio
+            self.models = timm_portfolio_a
         else:
             if train_x.shape[-1] > 32:
-                self.models = timm_portfolio
+                self.models = timm_portfolio_b
             else:
-                self.models = timm_portfolio
+                self.models = timm_portfolio_c
 
 
     

@@ -15,6 +15,8 @@ from .xception import *
 from .xception_aligned import *
 from .layers import *
 
+from functools import partial
+
 # here just function reference to save time
 global model_portfolio
 model_portfolio = {
@@ -39,7 +41,11 @@ light_portfolio = {
             "ResNext18_32x4d": resnext18_32x4d,
         }
 
-global timm_portfolio
+global timm_portfolio, timm_portfolio_a, timm_portfolio_b, timm_portfolio_c
+
+# dummy portfolio
+timm_portfolio = {"ResNet18": resnet18}
+
 # sub1
 #timm_portfolio = {
 #            "DenseNet161": densenet161,
@@ -77,33 +83,46 @@ global timm_portfolio
 #        }
 
 # sub4
-timm_portfolio = {
-            "DenseNet161": densenet161,
-            "DenseNet121": densenet121,
-            "DenseNet169": densenet169,
-            "ResNest14d": resnest14d,
-            "VovNet39a": vovnet39a,
-            "Ese_VovNet39b": ese_vovnet39b, 
-            "SeResNet50t": seresnet50t,
-            "SeResNext26d_32x4d": seresnext26d_32x4d,
-            "xception71": xception71,
-            "ResNet18d": resnet18d,
-            "Regnety_320": regnety_320,
-            "Gernet_m": gernet_m,
-            "Gluon_xception65": gluon_xception65,
-            "DenseNetBlur121d": densenetblur121d,
-            "SeResNext26tn_32x4d": seresnext26tn_32x4d
-        }
-
-# sub4 unused
 #timm_portfolio = {
-#            "DenseNet161": densenet161,
+#            "DenseNet161": partial(densenet161, drop_rate=0.2),
+#            "DenseNet121": densenet121,
+#            "DenseNet169": densenet169,
 #            "ResNest14d": resnest14d,
+#            "VovNet39a": vovnet39a,
 #            "Ese_VovNet39b": ese_vovnet39b, 
 #            "SeResNet50t": seresnet50t,
 #            "SeResNext26d_32x4d": seresnext26d_32x4d,
 #            "xception71": xception71,
 #            "ResNet18d": resnet18d,
 #            "Regnety_320": regnety_320,
-#            "Gernet_m": gernet_m
+#            "Gernet_m": gernet_m,
+#            "Gluon_xception65": gluon_xception65,
+#            "DenseNetBlur121d": densenetblur121d,
+#            "SeResNext26tn_32x4d": seresnext26tn_32x4d
 #        }
+
+# sub5
+timm_portfolio_a = {
+            "ResNest14d_drop01": partial(resnest14d, drop_rate=0.1),
+            "ResNest14d_drop02": partial(resnest14d, drop_rate=0.2),
+            "ResNest14d_drop03": partial(resnest14d, drop_rate=0.3),
+            "ResNest14d_drop04": partial(resnest14d, drop_rate=0.4),
+            "ResNest14d_drop05": partial(resnest14d, drop_rate=0.5),
+            "ResNest14d_drop06": partial(resnest14d, drop_rate=0.6),
+        }
+
+timm_portfolio_b = {
+            "DenseNet121": densenet121,
+            "StackTailored": resnet18dstacktailored,
+            "DenseNet121_drop01": partial(densenet121, drop_rate=0.1),
+            "DenseNet121_drop02": partial(densenet121, drop_rate=0.2),
+            "DenseNet121_drop03": partial(densenet121, drop_rate=0.3)
+        }
+
+timm_portfolio_c = {
+            "DenseNet161": densenet161,
+            "StackTailored": resnet18dstacktailored,
+            "DenseNet161_drop01": partial(densenet161, drop_rate=0.1),
+            "DenseNet161_drop02": partial(densenet161, drop_rate=0.2),
+            "DenseNet161_drop03": partial(densenet161, drop_rate=0.3)
+        }
