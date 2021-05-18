@@ -144,10 +144,6 @@ def full_training(model, **kwargs):
             print('estimated train time exceeded', estimated_train_time)
             return best_val_acc, estimated_train_time
 
-        elif key in ["DenseNet161", "DenseNet121", "TV_DenseNet121", "DenseNet169"] and epoch >= 12 and best_val_acc < 65:
-            print('Poor performance, epoch', epoch)
-            return best_val_acc, estimated_train_time
-
         elif epoch >= 40:
             print('Early stopping, epoch', epoch)
             return best_val_acc, estimated_train_time
