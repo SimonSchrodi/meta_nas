@@ -110,7 +110,7 @@ class NAS:
 
         elif self.meta_learner == 'timm':            
             # there are 498 models total in timm.list_models()
-            key = list(timm_portfolio.keys())[n % len(list(timm_portfolio.keys()))]
+            key = list(self.models.keys())[n % len(list(self.models.keys()))]
             return key, self.models[key]()
 
         else:
@@ -126,6 +126,16 @@ class NAS:
         self.lr = metadata['lr']
         self.train_pack = list(zip(train_x, train_y))
         self.valid_pack = list(zip(valid_x, valid_y))
+
+        # select portfolio
+        if self.channels == 1:
+            self.models = timm_portfolio
+        else:
+            if train_x.shape[-1] > 32:
+                self.models = timm_portfolio
+            else:
+                self.models = timm_portfolio
+
 
     
     def _train(self, model, train_time_limit, key):
