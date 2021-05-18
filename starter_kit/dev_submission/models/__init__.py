@@ -9,6 +9,7 @@ from .resnet import *
 from .resnest import *
 from .rexnet import *
 from .sknet import *
+from .tailored_models import *
 from .vovnet import *
 from .xception import *
 from .xception_aligned import *

@@ -101,7 +101,7 @@ class NAS:
         key = max(self.performance_stats.items(), key=operator.itemgetter(1))[0] if self.performance_stats else self.default_model
         print('Use model:', key)
         model = self.models[key]()
-        return nas_helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes)
+        return nas_helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes, copy_type='StarterTailored' if model.__class__.__name__ == 'StackTailored' else 'Starter')
 
     def _meta_learner(self, n, num_classes):
         if self.meta_learner == 'iterate':
@@ -130,7 +130,7 @@ class NAS:
     
     def _train(self, model, train_time_limit, key):
         # reshape it to this dataset and reset model
-        model = nas_helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes)
+        model = nas_helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes, copy_type='StarterTailored' if model.__class__.__name__ == 'StackTailored' else 'Starter')
         train_helpers.reset_weights(model)
 
         # create data loader
