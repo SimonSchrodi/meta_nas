@@ -41,6 +41,7 @@ default_cfgs = {
     'densenet264': _cfg(url=''),
     'densenet264d_iabn': _cfg(url=''),
     'tv_densenet121': _cfg(url='https://download.pytorch.org/models/densenet121-a639ec97.pth'),
+    'densenet101': _cfg(),
 }
 
 
@@ -292,6 +293,15 @@ def _create_densenet(variant, growth_rate, block_config, pretrained, **kwargs):
         feature_cfg=dict(flatten_sequential=True), pretrained_filter_fn=_filter_torchvision_pretrained,
         **kwargs)
 
+
+@register_model
+def densenet101(pretrained=False, **kwargs):
+    r"""Densenet-101 model inspired from
+    `"Densely Connected Convolutional Networks" <https://arxiv.org/pdf/1608.06993.pdf>`
+    """
+    model = _create_densenet(
+        'densenet101', growth_rate=32, block_config=(6, 12, 16, 16), pretrained=pretrained, **kwargs)
+    return model
 
 @register_model
 def densenet121(pretrained=False, **kwargs):

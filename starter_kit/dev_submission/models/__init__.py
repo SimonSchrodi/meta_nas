@@ -147,22 +147,24 @@ timm_portfolio_a = {
         }
 
 timm_portfolio_b = {
-            "DenseNet121_drop01": partial(densenet121, drop_rate=0.2),
-            "StackTailored": resnet18dstacktailored,
-            "DenseNet121_drop02": partial(densenet121, drop_rate=0.1),
-            "DenseNet121_drop03": partial(densenet121, drop_rate=0.3),
-            "DenseNet121_drop04": partial(densenet121, drop_rate=0.4),
-            "DenseNet121_drop05": partial(densenet121, drop_rate=0.5),
-            "DenseNet121_drop06": partial(densenet121, drop_rate=0.6),
+            "DenseNet121": densenet121,
+            "DenseNet101": densenet101,
+            "DenseNet101_drop02": partial(densenet101, drop_rate=0.1),
+            "DenseNet101_drop03": partial(densenet101, drop_rate=0.3),
+            "DenseNet101_drop04": partial(densenet101, drop_rate=0.4),
+            "DenseNet101_drop05": partial(densenet101, drop_rate=0.5),
+            "DenseNet101_drop06": partial(densenet101, drop_rate=0.6),
         }
 
 timm_portfolio_c = {
             "StackTailored": resnet18dstacktailored,
-            "DenseNet161_drop02": partial(densenet161, drop_rate=0.2),
             "DenseNet161": densenet161,
-            "DenseNet161_drop01": partial(densenet161, drop_rate=0.1),
-            "DenseNet161_drop03": partial(densenet161, drop_rate=0.3),
-            "DenseNet161_drop04": partial(densenet161, drop_rate=0.4),
-            "DenseNet161_drop05": partial(densenet161, drop_rate=0.5),
-            "DenseNet161_drop06": partial(densenet161, drop_rate=0.6),
+            "DenseNet169": densenet169,
+            "DenseNet169_drop02": partial(densenet169, drop_rate=0.2),
+            "DenseNet169_drop01": partial(densenet169, drop_rate=0.1),
+            "DenseNet169_drop03": partial(densenet169, drop_rate=0.3),
+            "DenseNet169_drop04": partial(densenet169, drop_rate=0.4),
+            "DenseNet169_drop05": partial(densenet169, drop_rate=0.5),
+            "DenseNet169_drop06": partial(densenet169, drop_rate=0.6),
+            "DenseNet121": densenet121,
         }
