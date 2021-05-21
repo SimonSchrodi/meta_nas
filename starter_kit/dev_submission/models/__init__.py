@@ -135,23 +135,59 @@ timm_portfolio = {"ResNet18": resnet18}
 #        }
 
 # sub6
+#timm_portfolio_a = {
+#            "ResNest14d": resnest14d,
+#            "VovNet39a_drop02": partial(vovnet39a, drop_rate=0.2),
+#            "xception71": xception71,
+#            "VovNet39a_drop01": partial(vovnet39a, drop_rate=0.1),
+#            "VovNet39a": vovnet39a,
+#            "VovNet39a_drop06": partial(vovnet39a, drop_rate=0.6),
+#            "VovNet39a_drop07": partial(vovnet39a, drop_rate=0.7),
+#            "VovNet39a_drop08": partial(vovnet39a, drop_rate=0.8),
+#        }
+
+#timm_portfolio_b = {
+#            "DenseNet121": densenet121,
+#            "DenseNet101": densenet101,
+#            "DenseNet101_drop02": partial(densenet101, drop_rate=0.1),
+#            "DenseNet101_drop03": partial(densenet101, drop_rate=0.3),
+#            "DenseNet101_drop04": partial(densenet101, drop_rate=0.4),
+#            "DenseNet101_drop05": partial(densenet101, drop_rate=0.5),
+#            "DenseNet101_drop06": partial(densenet101, drop_rate=0.6),
+#        }
+
+#timm_portfolio_c = {
+#            "StackTailored": resnet18dstacktailored,
+#            "DenseNet161": densenet161,
+#            "DenseNet169": densenet169,
+#            "DenseNet169_drop02": partial(densenet169, drop_rate=0.2),
+#            "DenseNet169_drop01": partial(densenet169, drop_rate=0.1),
+#            "DenseNet169_drop03": partial(densenet169, drop_rate=0.3),
+#            "DenseNet169_drop04": partial(densenet169, drop_rate=0.4),
+#            "DenseNet169_drop05": partial(densenet169, drop_rate=0.5),
+#            "DenseNet169_drop06": partial(densenet169, drop_rate=0.6),
+#            "DenseNet121": densenet121,
+#        }
+
+# sub 7
 timm_portfolio_a = {
             "ResNest14d": resnest14d,
-            "VovNet39a_drop02": partial(vovnet39a, drop_rate=0.2),
+            "DenseNet101": densenet101,
+            "VovNet39a_drop09": partial(vovnet39a, drop_rate=0.9),
+            "DenseNet121": densenet121,
             "xception71": xception71,
-            "VovNet39a_drop01": partial(vovnet39a, drop_rate=0.1),
-            "VovNet39a": vovnet39a,
-            "VovNet39a_drop06": partial(vovnet39a, drop_rate=0.6),
-            "VovNet39a_drop07": partial(vovnet39a, drop_rate=0.7),
+            "DenseNet101_drop09": partial(densenet101, drop_rate=0.9),
             "VovNet39a_drop08": partial(vovnet39a, drop_rate=0.8),
+            "VovNet39a": vovnet39a,
+            "VovNet39a_drop07": partial(vovnet39a, drop_rate=0.7),
         }
 
 timm_portfolio_b = {
-            "DenseNet121": densenet121,
             "DenseNet101": densenet101,
-            "DenseNet101_drop02": partial(densenet101, drop_rate=0.1),
-            "DenseNet101_drop03": partial(densenet101, drop_rate=0.3),
-            "DenseNet101_drop04": partial(densenet101, drop_rate=0.4),
+            "DenseNet121": densenet121,
+            "DenseNet101_drop09": partial(densenet101, drop_rate=0.9),
+            "DenseNet101_drop08": partial(densenet101, drop_rate=0.8),
+            "DenseNet101_drop07": partial(densenet101, drop_rate=0.7),
             "DenseNet101_drop05": partial(densenet101, drop_rate=0.5),
             "DenseNet101_drop06": partial(densenet101, drop_rate=0.6),
         }
@@ -160,7 +196,7 @@ timm_portfolio_c = {
             "StackTailored": resnet18dstacktailored,
             "DenseNet161": densenet161,
             "DenseNet169": densenet169,
-            "DenseNet169_drop02": partial(densenet169, drop_rate=0.2),
+            "DenseNet169_drop02": partial(densenet169, drop_rate=0.6),
             "DenseNet169_drop01": partial(densenet169, drop_rate=0.1),
             "DenseNet169_drop03": partial(densenet169, drop_rate=0.3),
             "DenseNet169_drop04": partial(densenet169, drop_rate=0.4),
