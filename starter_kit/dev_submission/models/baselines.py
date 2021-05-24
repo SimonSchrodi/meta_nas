@@ -13,17 +13,19 @@ class MLP(nn.Module):
 
     def __init__(
         self,
-        input_size: int=32*32,
+        input_size: int=486,
         hidden_size: Union[int, List[int]] = 10,
-        num_classes: int = 10,
-        dropout: bool = True,
+        num_classes: int = 6,
+        drop_rate: bool = False,
         init_weights: bool = True
     ) -> None:
         super(MLP, self).__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size if isinstance(hidden_size, list) else [hidden_size]
         self.num_classes = num_classes
-        self.dropout = nn.Dropout() if dropout else nn.Identity()
+        self.dropout = dropout
+        if self.dropout:
+            self.dropout = nn.Dropout()
 
         self.input_linear = nn.Linear(self.input_size, self.hidden_size[0])
         self.linears = nn.ModuleList(
@@ -40,11 +42,13 @@ class MLP(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.input_linear(x)
         x = self.relu(x)
-        x = self.dropout(x)
+        if self.dropout:
+            x = self.dropout(x)
         for linear in self.linears:
             x = linear(x)
             x = self.relu(x)
-            x = self.dropout(x)
+            if self.dropout:
+                x = self.dropout(x)
         x = self.output_linear(x)
         return x
 

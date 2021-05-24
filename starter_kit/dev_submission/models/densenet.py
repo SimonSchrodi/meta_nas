@@ -38,10 +38,17 @@ default_cfgs = {
     'densenet169': _cfg(url='https://download.pytorch.org/models/densenet169-b2777c0a.pth'),
     'densenet201': _cfg(url='https://download.pytorch.org/models/densenet201-c1103571.pth'),
     'densenet161': _cfg(url='https://download.pytorch.org/models/densenet161-8d451a50.pth'),
+    'densenet161s': _cfg(),
+    'densenet161ss': _cfg(),
+    'densenet161sss': _cfg(),
+    'densenet161l': _cfg(),
+    'densenet161ll': _cfg(),
     'densenet264': _cfg(url=''),
     'densenet264d_iabn': _cfg(url=''),
     'tv_densenet121': _cfg(url='https://download.pytorch.org/models/densenet121-a639ec97.pth'),
     'densenet101': _cfg(),
+    'densenet81': _cfg(),
+    'densenet61': _cfg(),
 }
 
 
@@ -295,6 +302,24 @@ def _create_densenet(variant, growth_rate, block_config, pretrained, **kwargs):
 
 
 @register_model
+def densenet61(pretrained=False, **kwargs):
+    r"""Densenet-61 model inspired from
+    `"Densely Connected Convolutional Networks" <https://arxiv.org/pdf/1608.06993.pdf>`
+    """
+    model = _create_densenet(
+        'densenet61', growth_rate=32, block_config=(6, 12, 12, 12), pretrained=pretrained, **kwargs)
+    return model
+
+@register_model
+def densenet81(pretrained=False, **kwargs):
+    r"""Densenet-81 model inspired from
+    `"Densely Connected Convolutional Networks" <https://arxiv.org/pdf/1608.06993.pdf>`
+    """
+    model = _create_densenet(
+        'densenet81', growth_rate=32, block_config=(6, 12, 16, 12), pretrained=pretrained, **kwargs)
+    return model
+
+@register_model
 def densenet101(pretrained=False, **kwargs):
     r"""Densenet-101 model inspired from
     `"Densely Connected Convolutional Networks" <https://arxiv.org/pdf/1608.06993.pdf>`
@@ -356,6 +381,33 @@ def densenet201(pretrained=False, **kwargs):
 
 
 @register_model
+def densenet161sss(pretrained=False, **kwargs):
+    r"""Densenet-161sss model from
+    `"Densely Connected Convolutional Networks" <https://arxiv.org/pdf/1608.06993.pdf>`
+    """
+    model = _create_densenet(
+        'densenet161sss', growth_rate=48, block_config=(6, 12, 16, 16), pretrained=pretrained, **kwargs)
+    return model
+
+@register_model
+def densenet161ss(pretrained=False, **kwargs):
+    r"""Densenet-161ss model from
+    `"Densely Connected Convolutional Networks" <https://arxiv.org/pdf/1608.06993.pdf>`
+    """
+    model = _create_densenet(
+        'densenet161ss', growth_rate=48, block_config=(6, 12, 16, 24), pretrained=pretrained, **kwargs)
+    return model
+
+@register_model
+def densenet161s(pretrained=False, **kwargs):
+    r"""Densenet-161s model from
+    `"Densely Connected Convolutional Networks" <https://arxiv.org/pdf/1608.06993.pdf>`
+    """
+    model = _create_densenet(
+        'densenet161s', growth_rate=48, block_config=(6, 12, 24, 24), pretrained=pretrained, **kwargs)
+    return model
+
+@register_model
 def densenet161(pretrained=False, **kwargs):
     r"""Densenet-161 model from
     `"Densely Connected Convolutional Networks" <https://arxiv.org/pdf/1608.06993.pdf>`
@@ -364,6 +416,23 @@ def densenet161(pretrained=False, **kwargs):
         'densenet161', growth_rate=48, block_config=(6, 12, 36, 24), pretrained=pretrained, **kwargs)
     return model
 
+@register_model
+def densenet161l(pretrained=False, **kwargs):
+    r"""Densenet-161l model from
+    `"Densely Connected Convolutional Networks" <https://arxiv.org/pdf/1608.06993.pdf>`
+    """
+    model = _create_densenet(
+        'densenet161l', growth_rate=64, block_config=(6, 12, 36, 24), pretrained=pretrained, **kwargs)
+    return model
+
+@register_model
+def densenet161ll(pretrained=False, **kwargs):
+    r"""Densenet-161ll model from
+    `"Densely Connected Convolutional Networks" <https://arxiv.org/pdf/1608.06993.pdf>`
+    """
+    model = _create_densenet(
+        'densenet161ll', growth_rate=92, block_config=(6, 12, 36, 24), pretrained=pretrained, **kwargs)
+    return model
 
 @register_model
 def densenet264(pretrained=False, **kwargs):
