@@ -16,7 +16,7 @@ class MLP(nn.Module):
         input_size: int=486,
         hidden_size: Union[int, List[int]] = 10,
         num_classes: int = 6,
-        drop_rate: bool = False,
+        dropout: bool = False,
         init_weights: bool = True
     ) -> None:
         super(MLP, self).__init__()

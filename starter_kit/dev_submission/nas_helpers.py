@@ -169,7 +169,7 @@ def reshape_model(model: nn.Module, channels: int, n_classes: int, copy_type: st
                 kwargs['out_channels'] = copy_member.out_channels if is_input else n_classes
                 kwargs['kernel_size'] = copy_member.kernel_size
             elif copy_member.__class__.__name__ == 'Linear':
-                kwargs['in_features'] = channels if is_input else copy_member.in_features
+                kwargs['in_features'] = copy_member.in_features
                 kwargs['out_features'] = copy_member.out_features if is_input else n_classes
                 if not is_input and copy_type == 'StarterTailored':
                     kwargs['in_features'] = n_classes*3 # assumes concat of tailored model!
