@@ -4,20 +4,22 @@ import sys
 from pathlib import Path
 
 sys.path.append(os.getcwd())
-from available_datasets import all_datasets, train_datasets, val_datasets, GROUPS
+from available_datasets import all_datasets, GROUPS
 from mf_utils import get_autodl_dataset, autodl_to_torch, get_nascomp_dataset, nascomp_to_torch, logger, dump_meta_features_df_and_csv
 
-sys.path.append('task2vec/')
+sys.path.append('dev_meta_features/task2vec/')
 from task2vec import Task2Vec
 from models import get_model
 import task_similarity
 
-devel_datasets_dir = '../public_data_12-03-2021_13-33'
+devel_datasets_dir = 'public_data_12-03-2021_13-33'
+fails = []
 
 def calculate_dataset_x_augmentation_embeddings(
     datasets_main_dir: Path, 
     dataset_names: list, 
     augmentations,
+    probe: str,
     skip_layers: int,
     method: str, 
     max_samples: int):
@@ -25,16 +27,22 @@ def calculate_dataset_x_augmentation_embeddings(
     embeddings = []
     meta_features = dict()
     for n in augmentations:
+        
         logger.info(f"Augmentation {n}")
         dataset_dirs = [os.path.join(datasets_main_dir, str(n), name) for name in dataset_names]
+        
         for name, dataset_dir in zip(dataset_names, dataset_dirs):
+            
             logger.info(f"Embedding {name}")
 
-            _, test_dataset, test_solution = get_autodl_dataset(dataset_dir)
-            dataset, num_classes = autodl_to_torch(test_dataset, test_solution)
+            if str(n)+'-'+name in fails:
+                continue
+            
+            train_dataset, _, _ = get_autodl_dataset(dataset_dir)
+            dataset, num_classes = autodl_to_torch(train_dataset)
 
-            probe_network = get_model('resnet34', pretrained=True, num_classes=num_classes).cuda()
-            task2vec = Task2Vec(probe_network, max_samples=max_samples, skip_layers=skip_layers, method = method, loader_opts = {'batch_size': 64})
+            probe_network = get_model(probe, pretrained=True, num_classes=num_classes).cuda()
+            task2vec = Task2Vec(probe_network, max_samples=max_samples, skip_layers=skip_layers, method = method, loader_opts = {'batch_size': 100})
             embedding, _ = task2vec.embed(dataset)
             embeddings.append(embedding)
             
@@ -42,16 +50,16 @@ def calculate_dataset_x_augmentation_embeddings(
             meta_features[dataset_key] = {i: embedding.hessian[i] for i in range(len(embedding.hessian))}
 
             logger.info(f"Embedding {name} completed!")
-    ''''''
-    del probe_network
+
+
     for _dir in os.listdir(devel_datasets_dir):
 
         logger.info(f"Embedding {_dir}")
 
-        _, _, dataset = get_nascomp_dataset(os.path.join(devel_datasets_dir, _dir))
-        dataset, num_classes = nascomp_to_torch(dataset)
+        train_dataset, _, _ = get_nascomp_dataset(os.path.join(devel_datasets_dir, _dir))
+        dataset, num_classes = nascomp_to_torch(train_dataset)
 
-        probe_network = get_model('resnet34', pretrained=True, num_classes=num_classes).cuda()
+        probe_network = get_model(probe, pretrained=True, num_classes=num_classes).cuda()
         task2vec = Task2Vec(probe_network, max_samples=max_samples, skip_layers=skip_layers, method = method, loader_opts = {'batch_size': 100})
         embedding, _ = task2vec.embed(dataset)
         embeddings.append(embedding)
@@ -75,12 +83,13 @@ def main(args):
     embeddings, meta_features = \
     calculate_dataset_x_augmentation_embeddings(args.dataset_dir, 
                                                 dataset_names, 
-                                                range(args.n_augmentations), 
+                                                range(args.n_augmentations),
+                                                args.probe_network, 
                                                 args.skip_layers,
                                                 args.method,
                                                 args.max_samples)
     
-    task_names = [str(n)+'-'+d for d in dataset_names for n in range(args.n_augmentations)]
+    task_names = [str(n)+'-'+d for d in dataset_names for n in range(args.n_augmentations) if str(n)+'-'+d not in fails]
     task_names += os.listdir(devel_datasets_dir)
 
     if args.plot_dist_mat:
@@ -97,12 +106,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser("Task2VecPipeline")
     parser.add_argument("--dataset_dir", type=Path, default = '/data/aad/image_datasets/augmented_datasets')
     parser.add_argument("--dataset_group", type=str, default = 'all') # all/training/validation
-    parser.add_argument("--n_augmentations", type=int, default = 1)
-    parser.add_argument("--output_dir", type=Path, default = 'task2vec_results/meta_dataset_creation_small/')
+    parser.add_argument("--n_augmentations", type=int, default = 30)
+    parser.add_argument("--output_dir", type=Path, default = 'dev_meta_features/task2vec_results/meta_dataset_creation_test/')
     parser.add_argument("--plot_dist_mat", type=bool, default = True)
-    parser.add_argument("--skip_layers", type=int, default = 6)
+    parser.add_argument("--probe_network", type=str, default = 'resnet34')
+    parser.add_argument("--skip_layers", type=int, default = 0)
     parser.add_argument("--method", type=str, default = 'montecarlo')
-    parser.add_argument("--max_samples", type=int, default = 1024)
+    parser.add_argument("--max_samples", type=int, default = 10000)
     args, _ = parser.parse_known_args()
 
     #### ORIGINAL RUN SCRIPT ####

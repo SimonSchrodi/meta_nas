@@ -7,10 +7,12 @@ import logging
 from pathlib import Path
 import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
 import torch
-from sklearn.model_selection import train_test_split
+import random
 
-from available_datasets import all_datasets, train_datasets, val_datasets
+sys.path.append(os.getcwd())
+from available_datasets import all_datasets, get_portfolio, AUTODL_MAIN_DIR
 
 import tensorflow as tf
 tf.enable_eager_execution()
@@ -44,9 +46,9 @@ def get_autodl_dataset(dataset_dir):
     from competition.dataset import AutoDLDataset  # THE class of AutoDL datasets
     from competition.score import get_solution
 
-    ###########################################
-    #### COPIED FROM THE INGESTION PROGRAM ####
-    ###########################################
+    ##################################################
+    #### COPIED FROM THE AUTODL INGESTION PROGRAM ####
+    ##################################################
 
     #### INVENTORY DATA (and sort dataset names alphabetically)
     datanames = data_io.inventory_data(dataset_dir)
@@ -106,14 +108,14 @@ def interpolate_images(images, max_h, max_w):
     int_images = []
     for img in images:
         img = torch.from_numpy(img).unsqueeze(0)
-        img = torch.nn.functional.interpolate(img, size = (max_h, max_w))
+        img = torch.nn.functional.interpolate(img, size = (max_h, max_w), mode = 'bilinear')
         int_images.append(img.squeeze(0).numpy())
 
     return int_images
 
-def autodl_to_torch(dataset, test_solution):
+def autodl_to_torch(dataset):
 
-    h, w, c = dataset.get_metadata().get_tensor_size()
+    _, _, c = dataset.get_metadata().get_tensor_size()
     size_limit = 224 # max size 
     
     images = []
@@ -121,20 +123,20 @@ def autodl_to_torch(dataset, test_solution):
     for i, (image, label) in enumerate(dataset.get_dataset().take(-1)):
 
         image = image.numpy()
-        label = test_solution[i]
+        label = label.numpy()
 
         if c == 1:
             image = np.stack((image.squeeze(-1),)*3, axis=-1)
         images.append(image.squeeze(0).transpose(2, 0, 1))
         labels.append(np.argmax(label))
 
+    if len(images) > 45000:
+        pairs = random.sample(list(zip(images, labels)), 45000)
+        images, labels = zip(*pairs)
+
     num_classes=max(labels)+1
-    
-    # Bring the images into the same size or trim them if too large to avoid memory issues
-    if h == -1 or w == -1 or h > size_limit or w > size_limit:
-        max_h = min(max([img.shape[1]for img in images]), size_limit)
-        max_w = min(max([img.shape[2]for img in images]), size_limit)
-        images = interpolate_images(images, max_h, max_w)
+
+    images = interpolate_images(images, size_limit, size_limit)
 
     images = torch.from_numpy(np.array(images))
     labels = torch.from_numpy(np.array(labels)).long()
@@ -169,7 +171,10 @@ def nascomp_to_torch(dataset):
             image = image.squeeze(0).transpose(2, 1, 0)
         formatted_images.append(image)
 
-    images = torch.from_numpy(np.array(formatted_images)) # task2vec
+    size_limit = 224
+    images = interpolate_images(formatted_images, size_limit, size_limit)
+
+    images = torch.from_numpy(np.array(images)) # task2vec
     labels = torch.from_numpy(labels).long()
 
     dataset = torch.utils.data.TensorDataset(images, labels)
@@ -190,8 +195,6 @@ def tensorflow2numpy(dataset, num_channels, test_solution = None, **opts):
         if test_solution is not None:
             label = test_solution[i]
 
-        if num_channels == 1:
-            image = np.stack((image.squeeze(-1),)*3, axis=-1)
         images.append(image.squeeze(0).transpose(2, 1, 0))
         labels.append(np.argmax(label))
     
@@ -209,11 +212,13 @@ def tensorflow2numpy(dataset, num_channels, test_solution = None, **opts):
 
 def autodl2nascomp(train_dataset, test_dataset, test_solution):
     
+    from sklearn.model_selection import train_test_split
+
     h, w, c = get_dataset_hwc(train_dataset, test_dataset)
     size_limit = 224 # max size 
     
     X, y = tensorflow2numpy(train_dataset, c, size_limit = size_limit, shape = (h, w))
-    train_x, valid_x, train_y, valid_y = train_test_split(X, y, test_size = 0.1, random_state = 42)
+    train_x, valid_x, train_y, valid_y = train_test_split(X, y, test_size = 0.1, random_state = 42, stratify = y)
     test_x, test_y = tensorflow2numpy(test_dataset, c, test_solution, size_limit = size_limit, shape = (h, w))
 
     return (train_x, train_y), \
@@ -264,33 +269,14 @@ def dump_meta_features_df_and_csv(meta_features, n_augmentations, output_path, f
     else:
         df = meta_features
 
-    if samples_along_rows and n_samples:
-        train_dataset_names = [
-            d + "_{}".format(i) for d in train_datasets for i in range(n_samples)
-        ]
-        valid_dataset_names = [d + "_{}".format(i) for d in val_datasets for i in range(n_samples)]
-        file_name = "meta_features_samples_along_rows"
-    else:
-        train_dataset_names = [str(n)+'-'+dataset for dataset in train_datasets for n in range(n_augmentations)]
-        valid_dataset_names = [str(n)+'-'+dataset for dataset in val_datasets for n in range(n_augmentations)]
-
-    df_train = df.loc[df.index.isin(train_dataset_names)]
-    df_valid = df.loc[df.index.isin(valid_dataset_names)]
-
-    df_train.to_csv(output_path / Path(file_name + "_train.csv"))
-    df_train.to_pickle(output_path / Path(file_name + "_train.pkl"))
-
-    df_valid.to_csv(output_path / Path(file_name + "_valid.csv"))
-    df_valid.to_pickle(output_path / Path(file_name + "_valid.pkl"))
-
     df.to_csv((output_path / file_name).with_suffix(".csv"))
     df.to_pickle((output_path / file_name).with_suffix(".pkl"))
 
     print("meta features data dumped to: {}".format(output_path))
 
-def create_nascomp_datasets(source_datasets_dir, metadataset_info, target_datasets_dir):
-    portfolio = metadataset_info['portfolio']
-
+def create_nascomp_datasets(source_datasets_dir, portfolio, target_datasets_dir):
+    train_sizes = []
+    test_sizes = []
     for name in portfolio:
         logger.info(f"Converting {name}")
         dataset_dir = os.path.join(source_datasets_dir, *name.split('-'))
@@ -302,6 +288,9 @@ def create_nascomp_datasets(source_datasets_dir, metadataset_info, target_datase
         print('Validation set shape:',valid_x.shape)
         print('Test set shape:', test_x.shape)
 
+        train_sizes.append(train_x.shape[0])
+        test_sizes.append(test_x.shape[0])
+
         name = name +'_dataset'
         target_dir = os.path.join(target_datasets_dir, name)
         if not os.path.isdir(target_dir):
@@ -309,7 +298,7 @@ def create_nascomp_datasets(source_datasets_dir, metadataset_info, target_datase
 
         n_classes = train_dataset.get_metadata().get_output_size()
         
-        dataset_metadata = {"batch_size": 64, "n_classes": n_classes, "lr": 0.01, "benchmark": 0.0, "name": name}
+        dataset_metadata = {"batch_size": 256, "n_classes": n_classes, "lr": 0.01, "benchmark": 0.0, "name": name}
         json.dump(dataset_metadata, open(os.path.join(target_dir, "dataset_metadata"),"w"))
         
         np.save(os.path.join(target_dir, 'train_x'), train_x)
@@ -321,10 +310,61 @@ def create_nascomp_datasets(source_datasets_dir, metadataset_info, target_datase
         np.save(os.path.join(target_dir, 'test_x'), test_x)
         np.save(os.path.join(target_dir, 'test_y'), test_y)
 
+    for s1, s2 in zip(train_sizes, test_sizes):
+        print(s1, s2, s1>1e4 and s2>1e3)
+
+def visualize_nascomp_metadataset(portfolio, datasets_dir, image_output_dir, n = 3):
+
+    for name in portfolio:
+        logger.info(f"Visualizing {name}")
+        (train_x, train_y), (valid_x, valid_y), (test_x, test_y) = get_nascomp_dataset(os.path.join(datasets_dir, name)+'_dataset')
+        
+        subdir = os.path.join(image_output_dir, name)
+        if not os.path.isdir(subdir):
+            os.makedirs(subdir)
+
+        samples = np.random.choice(range(len(train_x)), n)
+        samples = train_x[samples]
+        for i, sample in enumerate(samples):
+            plt.imshow(sample.transpose(2, 1, 0), interpolation='nearest')
+            plt.savefig(os.path.join(subdir, str(i)+'.png'))
+            plt.close()
+
+        samples = np.random.choice(range(len(valid_x)), n)
+        samples = valid_x[samples]
+        for i, sample in enumerate(samples):
+            plt.imshow(sample.transpose(2, 1, 0), interpolation='nearest')
+            plt.savefig(os.path.join(subdir, str(i+3)+'.png'))
+            plt.close()
+
+        samples = np.random.choice(range(len(test_x)), n)
+        samples = test_x[samples]
+        for i, sample in enumerate(samples):
+            plt.imshow(sample.transpose(2, 1, 0), interpolation='nearest')  
+            plt.savefig(os.path.join(subdir, str(i+6)+'.png'))
+            plt.close()
+
 if __name__ == "__main__":
 
-    datasets_main_dir = '/data/aad/image_datasets/augmented_datasets'
+    from available_datasets import _50_resnet34_cosine_path, _50_resnet34_cosine, _nosim_resnet34_cosine_path, _nosim_resnet34_cosine, _3_resnet34_cosine_path, _3_resnet34_cosine
+    
+    metadataset_path = _nosim_resnet34_cosine_path
+    nascomp_portfolio = get_portfolio(_nosim_resnet34_cosine)
+    create_nascomp_datasets(AUTODL_MAIN_DIR, nascomp_portfolio, metadataset_path)
+    #visualize_nascomp_metadataset(nascomp_portfolio, metadataset_path, 'meta_dataset_images_cosine_with_curation')
 
-    metadataset_info = json.load(open("meta_features/task2vec_results/meta_dataset_creation/metadataset_info/info.json","r"))
+    os.system('cp -r public_data_12-03-2021_13-33/* '+metadataset_path)
+    '''
+    (train_x, train_y), \
+    (valid_x, valid_y), \
+    (test_x, test_y) = get_nascomp_dataset('/work/dlclarge2/ozturk-nascomp_track_3/meta_dataset_small/16-omniglot_dataset')
 
-    create_nascomp_datasets(datasets_main_dir, metadataset_info, '/work/dlclarge2/ozturk-nascomp_track_3/meta_dataset')
+    print(train_x.shape)
+    print(valid_x.shape)
+    print(test_x.shape)
+
+    print(len(np.unique(train_y)))
+    print(len(np.unique(valid_y)))
+    print(len(np.unique(test_y)))
+    '''
+

@@ -207,7 +207,7 @@ def plot_distance_matrix(embeddings, labels=None, distance='cosine', savepath = 
     import matplotlib.pyplot as plt
 
     len_e = len(embeddings)
-    figsize = max(0.3*len_e, 10)
+    figsize = max(0.31*len_e, 10)
 
     distance_matrix = pdist(embeddings, distance=distance)
     cond_distance_matrix = squareform(distance_matrix, checks=False)

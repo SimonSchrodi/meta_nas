@@ -9,11 +9,14 @@
 #SBATCH --mail-type=END,FAIL
 
 #SBATCH --gres=gpu:1
-#SBATCH --cpus-per-task 2
+#SBATCH --cpus-per-task 8
 
-source /home/ozturk/anaconda3/bin/activate autodl
+source /home/ozturk/anaconda3/bin/activate nascomp
 pwd
 
-python -m task2vec_icgen --n_augmentations 30 --skip_layers 6 --max_samples 1024 \
-						 --output_dir 'task2vec_results/meta_dataset_creation/'
+#python dev_meta_features/task2vec_icgen.py --n_augmentations 1 --skip_layers 0 --max_samples 10000 --probe_network 'resnet18' \
+#										--output_dir 'dev_meta_features/task2vec_results/meta_dataset_creation_resnet18_tr/'
+
+python dev_meta_features/task2vec_icgen.py --n_augmentations 30 --skip_layers 0 --max_samples 10000 --probe_network 'resnet34' \
+										--output_dir 'dev_meta_features/task2vec_results/meta_dataset_creation_resnet34_tr/'
 
