@@ -6,7 +6,7 @@ from copy import deepcopy
 
 from .resnet import *
 
-__all__ = ['resnet18dstacktailored']
+__all__ = ['resnet18dstacktailored', 'resnet18dstackdown', 'resnet18dstackdowntailored']
 
 
 class StackTailored(nn.Module):
@@ -29,9 +29,31 @@ class StackTailored(nn.Module):
         x = self.fc_combine(xout)
         return x
 
+class StackDown(nn.Module):
+    def __init__(self, base_model: nn.Module):
+        super().__init__()
+        self.base_model = base_model
+        self.pool = nn.AvgPool2d(kernel_size=2, stride=2)
+
+    def forward(self, x):
+        x = self.pool(x)
+        x = self.base_model(x)
+        return x
 
 def resnet18dstacktailored():
     """Constructs a ResNet-18-D model.
     """
     base_model = resnet18d()
     return StackTailored(base_model=base_model)
+
+def resnet18dstackdown():
+    """Constructs a ResNet-18-D model.
+    """
+    base_model = resnet18d()
+    return StackDown(base_model=base_model)
+
+def resnet18dstackdowntailored():
+    """Constructs a ResNet-18-D model.
+    """
+    base_model = resnet18d()
+    return StackTailored(StackDown(base_model=base_model))
