@@ -5,8 +5,9 @@ from typing import Type, Any, Callable, Union, List, Optional
 from copy import deepcopy
 
 from .resnet import *
+from .densenet import *
 
-__all__ = ['resnet18dstacktailored', 'resnet18dstackdown', 'resnet18dstackdowntailored']
+__all__ = ['resnet18dstacktailored', 'resnet18dstackdown', 'resnet18dstackdowntailored', 'densenet121stackdown']
 
 
 class StackTailored(nn.Module):
@@ -50,6 +51,12 @@ def resnet18dstackdown():
     """Constructs a ResNet-18-D model.
     """
     base_model = resnet18d()
+    return StackDown(base_model=base_model)
+
+def densenet121stackdown():
+    """Constructs a DenseNet121 model.
+    """
+    base_model = densenet121()
     return StackDown(base_model=base_model)
 
 def resnet18dstackdowntailored():
