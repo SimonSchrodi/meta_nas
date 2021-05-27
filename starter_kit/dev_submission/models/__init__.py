@@ -339,6 +339,7 @@ timm_portfolio_b = {
 
 timm_portfolio_c = {
             "DenseNet161l": densenet161l,
+            "resnet18dstacktailoredD": resnet18dstacktailoredD,
             "DenseNet161ll": densenet161ll,
             "VovNet39a": vovnet39a,
             "DenseNet169": densenet169,

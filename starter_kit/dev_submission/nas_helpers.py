@@ -173,6 +173,8 @@ def reshape_model(model: nn.Module, channels: int, n_classes: int, copy_type: st
                 kwargs['out_features'] = copy_member.out_features if is_input else n_classes
                 if not is_input and copy_type == 'StarterTailored':
                     kwargs['in_features'] = n_classes*3 # assumes concat of tailored model!
+                if is_input and copy_type == 'StarterTailoredD':
+                    kwargs['in_features'] = n_classes*3 # assumes concat of tailored model!
             else:
                 raise NotImplementedError
             
@@ -187,7 +189,7 @@ def reshape_model(model: nn.Module, channels: int, n_classes: int, copy_type: st
                 kwargs['bias'] = True if copy_member.bias is not None else False # same for linear
             elif 'Starter' in copy_type:
                 if 'Conv2d' in copy_member.__class__.__name__:
-                    if copy_type == 'StarterTailored':
+                    if copy_type == 'StarterTailored' or copy_type == 'StarterTailoredD':
                         kwargs['in_channels'] = 1
                     kwargs['stride'] = 1
                     kwargs['padding'] = 3
@@ -206,11 +208,18 @@ def reshape_model(model: nn.Module, channels: int, n_classes: int, copy_type: st
         new_layer = __create_new_layer(copy_member, copy_type, channels if is_input else n_classes, is_input)
         _setattr(model, member_str, new_layer)
 
-        if not is_input and copy_type == 'StarterTailored':  # special case for tailored models
+        # special cases for tailored models
+        if not is_input and (copy_type == 'StarterTailored' or copy_type == 'StarterTailoredD'):  
             base_member_str = _get_member_str(model.base_model_tailored, False)
             copy_member = _getattr(model.base_model_tailored, base_member_str)
             new_layer = __create_new_layer(copy_member, 'Starter', n_classes, is_input) # here starter
             _setattr(model.base_model_tailored, base_member_str, new_layer)
+
+        if not is_input and copy_type == 'StarterTailoredD':
+            base_member_str = _get_member_str(model.fc_out, True)
+            copy_member = _getattr(model.fc_out, base_member_str)
+            new_layer = __create_new_layer(copy_member, 'StarterTailoredD', n_classes, True) # here starter
+            _setattr(model.fc_out, base_member_str, new_layer)
 
 
     # first layer

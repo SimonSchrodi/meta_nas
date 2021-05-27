@@ -101,7 +101,7 @@ class NAS:
         key = max(self.performance_stats.items(), key=operator.itemgetter(1))[0] if self.performance_stats else self.default_model
         print('Use model:', key)
         model = self.models[key]()
-        return nas_helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes, copy_type='StarterTailored' if model.__class__.__name__ == 'StackTailored' else 'Starter')
+        return self._reshape_model(model=model)
 
     def _meta_learner(self, n, num_classes):
         if self.meta_learner == 'iterate':
@@ -136,11 +136,17 @@ class NAS:
             else:
                 self.models = timm_portfolio_c
 
+    def _reshape_model(self, model):
+        if model.__class__.__name__ == 'StackTailored':
+            return nas_helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes, copy_type='StarterTailored')
+        elif model.__class__.__name__ == 'StackTailoredD':
+            return nas_helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes, copy_type='StarterTailoredD')
+        else:
+            return nas_helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes, copy_type='Starter')
 
-    
     def _train(self, model, train_time_limit, key):
         # reshape it to this dataset and reset model
-        model = nas_helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes, copy_type='StarterTailored' if model.__class__.__name__ == 'StackTailored' else 'Starter')
+        model = self._reshape_model(model=model)
         train_helpers.reset_weights(model)
 
         # create data loader
