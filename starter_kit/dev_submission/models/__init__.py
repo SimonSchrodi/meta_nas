@@ -321,8 +321,8 @@ timm_portfolio_a = {
         }
 
 timm_portfolio_b = {
-            "DenseNet121StackDown": densenet121stackdown,
             "DenseNet121": densenet121,
+            "DenseNet121StackDown": densenet121stackdown,
             "ResNet18dStackDownTailored": resnet18dstackdowntailored,
             "DenseNet101": densenet101,
             "DenseNet81": densenet81,
