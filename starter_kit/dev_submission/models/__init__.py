@@ -322,8 +322,8 @@ timm_portfolio_a = {
 
 timm_portfolio_b = {
             "DenseNet121StackDown": densenet121stackdown,
-            "ResNet18dStackDownTailored": resnet18dstackdowntailored,
             "DenseNet121": densenet121,
+            "ResNet18dStackDownTailored": resnet18dstackdowntailored,
             "DenseNet101": densenet101,
             "DenseNet81": densenet81,
             "DenseNet61": densenet61,
@@ -341,6 +341,9 @@ timm_portfolio_c = {
             "DenseNet161l": densenet161l,
             "DenseNet161ll": densenet161ll,
             "VovNet39a": vovnet39a,
+            "DenseNet169": densenet169,
+            "DenseNet169l": densenet169l,
+            "DenseNet169ll": densenet169ll,
             "DenseNet101": densenet101,
             "DenseNet161sss": densenet161sss,
             "DenseNet161": densenet161,

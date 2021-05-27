@@ -36,6 +36,8 @@ default_cfgs = {
     'densenetblur121d': _cfg(
         url='https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-weights/densenetblur121d_ra-100dcfbc.pth'),
     'densenet169': _cfg(url='https://download.pytorch.org/models/densenet169-b2777c0a.pth'),
+    'densenet169l': _cfg(),
+    'densenet169ll': _cfg(),
     'densenet201': _cfg(url='https://download.pytorch.org/models/densenet201-c1103571.pth'),
     'densenet161': _cfg(url='https://download.pytorch.org/models/densenet161-8d451a50.pth'),
     'densenet161s': _cfg(),
@@ -369,6 +371,23 @@ def densenet169(pretrained=False, **kwargs):
         'densenet169', growth_rate=32, block_config=(6, 12, 32, 32), pretrained=pretrained, **kwargs)
     return model
 
+@register_model
+def densenet169l(pretrained=False, **kwargs):
+    r"""Densenet-169l model from
+    `"Densely Connected Convolutional Networks" <https://arxiv.org/pdf/1608.06993.pdf>`
+    """
+    model = _create_densenet(
+        'densenet169l', growth_rate=48, block_config=(6, 12, 32, 32), pretrained=pretrained, **kwargs)
+    return model
+
+@register_model
+def densenet169ll(pretrained=False, **kwargs):
+    r"""Densenet-169ll model from
+    `"Densely Connected Convolutional Networks" <https://arxiv.org/pdf/1608.06993.pdf>`
+    """
+    model = _create_densenet(
+        'densenet169ll', growth_rate=64, block_config=(6, 12, 32, 32), pretrained=pretrained, **kwargs)
+    return model
 
 @register_model
 def densenet201(pretrained=False, **kwargs):
