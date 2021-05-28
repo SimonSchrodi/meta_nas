@@ -1,7 +1,7 @@
 from .baselines import *
 from .byobnet import *
 from .cspnet import *
-from .densenet import *
+from .densenet import * 
 from .efficientnet import *
 from .gluon_xception import *
 from .regnet import *
@@ -340,10 +340,13 @@ timm_portfolio_b = {
 timm_portfolio_c = {
             "DenseNet161l": densenet161l,
             "resnet18dstacktailoredD": resnet18dstacktailoredD,
+            "DenseNet161d": densenet161d,
+            "DenseNet169d": densenet169d,
             "DenseNet161ll": densenet161ll,
             "VovNet39a": vovnet39a,
             "DenseNet169": densenet169,
             "DenseNet169l": densenet169l,
+            "DenseNet201d": densenet201d,
             "DenseNet169ll": densenet169ll,
             "DenseNet101": densenet101,
             "DenseNet161sss": densenet161sss,
