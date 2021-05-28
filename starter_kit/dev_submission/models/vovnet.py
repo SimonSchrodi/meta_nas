@@ -37,6 +37,26 @@ model_cfgs = dict(
         depthwise=False,
         attn='',
     ),
+    vovnet39a_ese=dict(
+        stem_chs=[64, 64, 128],
+        stage_conv_chs=[128, 160, 192, 224],
+        stage_out_chs=[256, 512, 768, 1024],
+        layer_per_block=5,
+        block_per_stage=[1, 1, 2, 2],
+        residual=False,
+        depthwise=False,
+        attn='ese',
+    ),
+    vovnet39a_eca=dict(
+        stem_chs=[64, 64, 128],
+        stage_conv_chs=[128, 160, 192, 224],
+        stage_out_chs=[256, 512, 768, 1024],
+        layer_per_block=5,
+        block_per_stage=[1, 1, 2, 2],
+        residual=False,
+        depthwise=False,
+        attn='eca',
+    ),
     vovnet57a=dict(
         stem_chs=[64, 64, 128],
         stage_conv_chs=[128, 160, 192, 224],
@@ -147,6 +167,8 @@ def _cfg(url=''):
 
 default_cfgs = dict(
     vovnet39a=_cfg(url=''),
+    vovnet39a_ese=_cfg(url=''),
+    vovnet39a_eca=_cfg(url=''),
     vovnet57a=_cfg(url=''),
     ese_vovnet19b_slim_dw=_cfg(url=''),
     ese_vovnet19b_dw=_cfg(
@@ -348,6 +370,14 @@ def _create_vovnet(variant, pretrained=False, **kwargs):
 @register_model
 def vovnet39a(pretrained=False, **kwargs):
     return _create_vovnet('vovnet39a', pretrained=pretrained, **kwargs)
+
+@register_model
+def vovnet39a_eca(pretrained=False, **kwargs):
+    return _create_vovnet('vovnet39a_eca', pretrained=pretrained, **kwargs)
+
+@register_model
+def vovnet39a_ese(pretrained=False, **kwargs):
+    return _create_vovnet('vovnet39a_ese', pretrained=pretrained, **kwargs)
 
 
 @register_model

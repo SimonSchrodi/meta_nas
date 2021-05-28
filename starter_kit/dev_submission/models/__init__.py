@@ -306,8 +306,10 @@ timm_portfolio = {"ResNet18": resnet18}
 # sub 10
 timm_portfolio_a = {
             "VovNet39a": vovnet39a,
-            "VovNet57a": vovnet57a,
             "ResNest14d": resnest14d,
+            "VovNet57a": vovnet57a,
+            "VovNet39a_eca": vovnet39a_eca,
+            "VovNet39a_ese": vovnet39a_ese,
             "DenseNet101": densenet101,
             "DenseNet101_drop09": partial(densenet101, drop_rate=0.9),
             "DenseNet169_drop095": partial(densenet169, drop_rate=0.95),
