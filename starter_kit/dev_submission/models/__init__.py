@@ -304,6 +304,68 @@ timm_portfolio = {"ResNet18": resnet18}
 #         }
 
 # sub 10
+# timm_portfolio_a = {
+#             "VovNet39a": vovnet39a,
+#             "ResNest14d": resnest14d,
+#             "VovNet57a": vovnet57a,
+#             "VovNet39a_eca": vovnet39a_eca,
+#             "VovNet39a_ese": vovnet39a_ese,
+#             "DenseNet101": densenet101,
+#             "DenseNet101_drop09": partial(densenet101, drop_rate=0.9),
+#             "DenseNet169_drop095": partial(densenet169, drop_rate=0.95),
+#             "DenseNet169_drop09": partial(densenet169, drop_rate=0.9),
+#             "VovNet39a_drop09": partial(vovnet39a, drop_rate=0.9),
+#             "DenseNet121": densenet121,
+#             "xception71": xception71,
+#             "DenseNet101_drop09": partial(densenet101, drop_rate=0.9),
+#             "VovNet39a_drop08": partial(vovnet39a, drop_rate=0.8),
+#             "VovNet39a_drop07": partial(vovnet39a, drop_rate=0.7),
+#         }
+
+# timm_portfolio_b = {
+#             "DenseNet121": densenet121,
+#             "DenseNet121StackDown": densenet121stackdown,
+#             "ResNet18dStackDownTailored": resnet18dstackdowntailored,
+#             "DenseNet101": densenet101,
+#             "DenseNet81": densenet81,
+#             "DenseNet61": densenet61,
+#             "VovNet39a_drop08": partial(vovnet39a, drop_rate=0.8),
+#             "VovNet39a": vovnet39a,
+#             "VovNet39a_drop07": partial(vovnet39a, drop_rate=0.7),
+#             "DenseNet101_drop09": partial(densenet101, drop_rate=0.9),
+#             "DenseNet101_drop08": partial(densenet101, drop_rate=0.8),
+#             "DenseNet101_drop07": partial(densenet101, drop_rate=0.7),
+#             "DenseNet101_drop05": partial(densenet101, drop_rate=0.5),
+#             "DenseNet101_drop06": partial(densenet101, drop_rate=0.6),
+#         }
+
+# timm_portfolio_c = {
+#             "DenseNet161l": densenet161l,
+#             "resnet18dstacktailoredD": resnet18dstacktailoredD,
+#             "DenseNet161d": densenet161d,
+#             "DenseNet169d": densenet169d,
+#             "DenseNet161ll": densenet161ll,
+#             "VovNet39a": vovnet39a,
+#             "DenseNet169": densenet169,
+#             "DenseNet169l": densenet169l,
+#             "DenseNet201d": densenet201d,
+#             "DenseNet169ll": densenet169ll,
+#             "DenseNet101": densenet101,
+#             "DenseNet161sss": densenet161sss,
+#             "DenseNet161": densenet161,
+#             "DenseNet169_drop095": partial(densenet169, drop_rate=0.95),
+#             "DenseNet169_drop09": partial(densenet169, drop_rate=0.9),
+#             "DenseNet121": densenet121,
+#             "VovNet39a_drop08": partial(vovnet39a, drop_rate=0.8),
+#             "VovNet39a_drop07": partial(vovnet39a, drop_rate=0.7),
+#             "DenseNet101_drop09": partial(densenet101, drop_rate=0.9),
+#             "DenseNet101_drop08": partial(densenet101, drop_rate=0.8),
+#             "DenseNet101_drop07": partial(densenet101, drop_rate=0.7),
+#             "DenseNet101_drop05": partial(densenet101, drop_rate=0.5),
+#             "DenseNet101_drop06": partial(densenet101, drop_rate=0.6),
+#         }
+
+# sub 11
 timm_portfolio_a = {
             "VovNet39a": vovnet39a,
             "ResNest14d": resnest14d,
@@ -341,16 +403,15 @@ timm_portfolio_b = {
 
 timm_portfolio_c = {
             "DenseNet161l": densenet161l,
-            "resnet18dstacktailoredD": resnet18dstacktailoredD,
             "DenseNet161d": densenet161d,
-            "DenseNet169d": densenet169d,
             "DenseNet161ll": densenet161ll,
+            "DenseNet101": densenet101,
+            "DenseNet169d": densenet169d,
             "VovNet39a": vovnet39a,
             "DenseNet169": densenet169,
             "DenseNet169l": densenet169l,
             "DenseNet201d": densenet201d,
             "DenseNet169ll": densenet169ll,
-            "DenseNet101": densenet101,
             "DenseNet161sss": densenet161sss,
             "DenseNet161": densenet161,
             "DenseNet169_drop095": partial(densenet169, drop_rate=0.95),
