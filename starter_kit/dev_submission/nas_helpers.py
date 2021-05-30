@@ -151,7 +151,7 @@ def reshape_model(model: nn.Module, channels: int, n_classes: int, copy_type: st
                     obj = getattr(obj, arg)
             return obj
         
-        def __create_new_layer(old_member, copy_type: str, val:int, is_input: bool):
+        def __create_new_layer(old_member, copy_type: str, val:int, is_input: bool, k: int=3):
             def _get_default_args(func):
                 signature = inspect.signature(func)
                 return {
@@ -175,6 +175,8 @@ def reshape_model(model: nn.Module, channels: int, n_classes: int, copy_type: st
                     kwargs['in_features'] = n_classes*3 # assumes concat of tailored model!
                 if is_input and copy_type == 'StarterTailoredD':
                     kwargs['in_features'] = n_classes*3 # assumes concat of tailored model!
+                if not is_input and copy_type == 'Ensembling':
+                    kwargs['in_features'] = n_classes*k # assumes concat of tailored model!
             else:
                 raise NotImplementedError
             
@@ -187,7 +189,7 @@ def reshape_model(model: nn.Module, channels: int, n_classes: int, copy_type: st
                             continue
                         kwargs[key] = getattr(copy_member, key)
                 kwargs['bias'] = True if copy_member.bias is not None else False # same for linear
-            elif 'Starter' in copy_type:
+            elif 'Starter' in copy_type or copy_type == 'Ensembling':
                 if 'Conv2d' in copy_member.__class__.__name__:
                     if copy_type == 'StarterTailored' or copy_type == 'StarterTailoredD':
                         kwargs['in_channels'] = 1
@@ -205,7 +207,10 @@ def reshape_model(model: nn.Module, channels: int, n_classes: int, copy_type: st
             raise Exception('Not allowed')
         is_input = channels is not None
         copy_member = _getattr(model, member_str)
-        new_layer = __create_new_layer(copy_member, copy_type, channels if is_input else n_classes, is_input)
+        if copy_type == 'Ensembling':
+            new_layer = __create_new_layer(copy_member, copy_type, channels if is_input else n_classes, is_input, k=len(model.models))
+        else:
+            new_layer = __create_new_layer(copy_member, copy_type, channels if is_input else n_classes, is_input)
         _setattr(model, member_str, new_layer)
 
         # special cases for tailored models
@@ -223,8 +228,9 @@ def reshape_model(model: nn.Module, channels: int, n_classes: int, copy_type: st
 
 
     # first layer
-    member_str = _get_member_str(model, True) 
-    _reshape(model, member_str, channels=channels, copy_type=copy_type)
+    if copy_type != 'Ensembling':
+        member_str = _get_member_str(model, True) 
+        _reshape(model, member_str, channels=channels, copy_type=copy_type)
     
     # last layer
     member_str = _get_member_str(model, False) 

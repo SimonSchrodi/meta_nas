@@ -100,7 +100,7 @@ class NAS:
         print('performance stats filtered:', self.performance_stats)
         key = max(self.performance_stats.items(), key=operator.itemgetter(1))[0] if self.performance_stats else self.default_model
         print('Use model:', key)
-        model = self.models[key]()
+        model = self.models[key](self.models) if 'Ensembling' in key else self.models[key]()
         return self._reshape_model(model=model)
 
     def _meta_learner(self, n, num_classes):
@@ -111,7 +111,10 @@ class NAS:
         elif self.meta_learner == 'timm':            
             # there are 498 models total in timm.list_models()
             key = list(self.models.keys())[n % len(list(self.models.keys()))]
-            return key, self.models[key]()
+            if 'Ensembling' in key:
+                return key, self.models[key](self.models)
+            else:
+                return key, self.models[key]()
 
         else:
             raise NotImplementedError
@@ -141,6 +144,10 @@ class NAS:
             return nas_helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes, copy_type='StarterTailored')
         elif model.__class__.__name__ == 'StackTailoredD':
             return nas_helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes, copy_type='StarterTailoredD')
+        elif model.__class__.__name__ == 'Ensembling':
+            for i in range(len(model.models)):
+                model.models[i] = nas_helpers.reshape_model(model=model.models[i], channels=self.channels, n_classes=self.n_classes, copy_type='Starter')
+            return nas_helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes, copy_type='Ensembling')
         else:
             return nas_helpers.reshape_model(model=model, channels=self.channels, n_classes=self.n_classes, copy_type='Starter')
 

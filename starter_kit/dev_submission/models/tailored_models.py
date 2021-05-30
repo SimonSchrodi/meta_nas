@@ -7,7 +7,7 @@ from copy import deepcopy
 from .resnet import *
 from .densenet import *
 
-__all__ = ['resnet18dstacktailored', 'resnet18dstackdown', 'resnet18dstackdowntailored', 'densenet121stackdown', 'resnet18dstacktailoredD']
+__all__ = ['resnet18dstacktailored', 'resnet18dstackdown', 'resnet18dstackdowntailored', 'densenet121stackdown', 'resnet18dstacktailoredD', 'ensembling']
 
 
 class StackTailored(nn.Module):
@@ -78,6 +78,33 @@ class StackDown(nn.Module):
         x = self.pool(x)
         x = self.base_model(x)
         return x
+
+
+class Ensembling(nn.Module):
+    def __init__(self, portfolio, k):
+        super().__init__()
+        self.models = nn.ModuleList(
+            [model() for key, model in portfolio.items() if 'Ensembling' not in key]
+        )
+        self.models = self.models[:k]
+        self.fc_combine = nn.Linear(10, 10)
+
+    def forward(self, x):
+        xout = None
+        for model in self.models:
+            _x = model(x)
+            if xout is None:
+                xout = _x
+            else:
+                xout = torch.cat((xout, _x), 1)
+        
+        x = self.fc_combine(xout)
+        return x
+
+
+def ensembling(portfolio, k=3):
+    return Ensembling(portfolio, k)
+
 
 def resnet18dstacktailored():
     """Constructs a ResNet-18-D model.
