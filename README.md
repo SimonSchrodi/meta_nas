@@ -22,4 +22,8 @@ python dev_nas/run_smac.py --dataset_path ../../public_data/devel_dataset_0
 ```
 
 ## Acknowledgements
-The implementations of the (non-tailored) models come from [rwightman/pytorch-image-models](https://github.com/rwightman/pytorch-image-models).
+ - The implementations of the (non-tailored) models come from [rwightman/pytorch-image-models](https://github.com/rwightman/pytorch-image-models).
+
+ - Meta-training set is in [AutoDL challenge](https://hal.archives-ouvertes.fr/hal-02957135/document) format and the dataset loader scripts comes from competition starter kit: [Competition Webpage](https://autodl.lri.fr/competitions/162#learn_the_details).
+
+ - We have used [Task2Vec](https://arxiv.org/abs/1902.03545) embeddings as meta-features. For the implementations of the meta-feature extractor and other helper functions see: [awslabs/aws-cv-task2vec](https://github.com/awslabs/aws-cv-task2vec).
